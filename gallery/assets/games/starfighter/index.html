@@ -230,15 +230,15 @@ function chooseUpgrade(id,title){
  if(state!=='UPGRADE')return;perks[id]++;if(id==='shield'){maxHull++;hull=maxHull}score+=100;[...$('answers').children].forEach(b=>b.disabled=true);say(title+' INSTALLED!',1.5);$('feedback').textContent=title+' is permanent for this mission. Next grammar transmission incoming.';state='REVIEW';timer=1.6;hud()
 }
 function pause(){if(['MENU','END'].includes(state))return;keys.clear();pointer=null;if(state==='PAUSED'){state=previous;$('overlay').hidden=true;$('pause').textContent='Pause'}else{previous=state;state='PAUSED';overlay('FLIGHT PAUSED','Your wave, upgrades and shields are safe.','RESUME',pause);$('modebar').hidden=true;$('pause').textContent='Resume'}}
-function damage(){if(invuln>0||state!=='ACTION')return;invuln=1.8;burst(ship.x,ship.y,'#ff9cbc',18);if(!practice)hull--;beep(90,.25,'sawtooth');say(practice?'SHIELD RECHARGING':'SHIELD HIT!',1);hud();if(hull<=0)end()}
+function damage(){if(invuln>0||state!=='ACTION')return;invuln=1.8;burst(ship.x,ship.y,'#ff9cbc',18);power.pierce=0;power.spread=0;if(!practice)hull--;beep(90,.25,'sawtooth');say(practice?'SHIELD RECHARGING':'SHIELD HIT!',1);hud();if(hull<=0)end()}
 function burst(x,y,color,n=15){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=45+Math.random()*180;particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.5+Math.random()*.4,color})}rings.push({x,y,r:5,life:.5,color})}
-function pickup(type){if(type==='shield'){hull=Math.min(maxHull,hull+1);invuln=Math.max(invuln,2);say('SHIELD REPAIRED!',1.2)}else{power[type]=Math.min(14,power[type]+6);say(type==='pierce'?'PIERCING LASER · SHOOT THROUGH!':'TRIPLE SHOT · WIDE FIRE!',1.4)}score+=25;beep(1400,.15);hud()}
+function pickup(type){if(type==='shield'){hull=Math.min(maxHull,hull+1);invuln=Math.max(invuln,2);say('SHIELD REPAIRED!',1.2)}else{power[type]=60;say(type==='pierce'?'PIERCING LASER · SHOOT THROUGH!':'TRIPLE SHOT · WIDE FIRE!',1.4)}score+=25;beep(1400,.15);hud()}
 function fire(){const spread=power.spread>0;for(const vx of spread?[-145,0,145]:[0])shots.push({x:ship.x+(vx===0?0:Math.sign(vx)*15),y:ship.y-27,px:ship.x,py:ship.y-27,vx,vy:-640,pierce:power.pierce>0,damage:1+perks.power,hit:new Set()});beep(800,.035,'triangle')}
 let enemyID=0;
 function makeEnemy(x,y,type=0){const hp=type===2?2:type===3?3:1;return{id:enemyID++,x,y,bx:x,phase:Math.random()*6.28,t:0,type,hp,maxHp:hp,fire:1.25+Math.random()*2.2}}
 function spawn(){const col=Math.floor(Math.random()*6),base=90+col*144,s=sector();let type=0,r=Math.random();if(s===2)type=r<.58?1:0;else if(s===3)type=r<.42?2:r<.78?1:0;else if(s>=4)type=r<.38?3:r<.68?2:r<.88?1:0;enemies.push(makeEnemy(base,-30,type))}
 function maybeDrop(x,y){
- const rate=wave<=2?.18:wave<=5?.12:wave<=8?.075:.04;if(Math.random()>=rate)return;let type;
+ const rate=wave<=2?.22:wave<=5?.16:wave<=8?.10:.06;if(Math.random()>=rate)return;let type;
  if(hull<maxHull&&shieldDrops<1&&Math.random()<.2){type='shield';shieldDrops++}else type=Math.random()<.5?'spread':'pierce';drops.push({x,y,type})
 }
 function enemyShot(x,y,angle,speedMul=1){hostile.push({x,y,vx:Math.cos(angle)*115*speed()*speedMul,vy:Math.sin(angle)*115*speed()*speedMul})}
