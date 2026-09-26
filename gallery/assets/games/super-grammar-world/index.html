@@ -56,6 +56,7 @@
       <div>SUPER GRAMMAR WORLD<br><span id="scoreDisplay">000000</span></div>
       <div>COINS<br>x<span id="coinDisplay">00</span></div>
       <div>LEVEL<br><span id="levelDisplay">1/3</span></div>
+      <div>HEARTS<br><span id="heartsDisplay">♡♡♡</span></div>
       <div class="sys-controls">
         <button class="sys-btn" id="btn-pause">PAUSE</button>
         <button class="sys-btn" id="btn-home">HOME</button>
@@ -112,7 +113,8 @@
     coin:   ["____KKKKKKK_____","___KYYYYYYYK____","__KYYYYYYYYYK___","_KYYKKKYYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKKKKYYYKYYK__","__KYYYYYYYYYK___","___KYYYYYYYK____","____KKKKKKK_____","________________"],
     lakitu: ["____KKKK________","___KOOOOOK______","__KOKKOKKOK_____","__KOOOOOOOK_____","__KDDDDDDDK_____","_KDDDDDDDDDK____","_KDKWKKKWKDK____","_KDWWWWWWWDK____","KWWWWWWWWWWWK___","KWWKWWWWWWKWWK__","KWWWWWWWWWWWWK__","_KWWWWWWWWWWK___","__KKKKKKKKKK____","________________","________________","________________"],
     star:   ["_______KK_______","______KYYK______","______KYYK______","_____KYYYYK_____","KKK_KKYYYYKK_KKK","KYYKKYYYYYYKKYYK","KYYYKYYYYYYKYYYK","_KYYYYYYYYYYYYK_","__KYYYYYYYYYYK__","__KYYYKKKKYYYK__","_KYYYYK__KYYYYK_","_KYYYK____KYYYK_","KYYYK______KYYYK","KYYK________KYYK","KYK__________KYK","KK____________KK"],
-    piranha:["___KKKKKKKKK____","__KGRWWWWWWRGK__","_KGGKGRWWWRGKGGK","_KGGK_KGWRGK_KGG","_KGGGK_KGGK_KGGG","_KGGOK_KGOK_KOGG","__KGGK_KGGK_KGGK","__KGGK_KGGK_KGGK","___KGKKKKKKKGK__","____KGGGGGGGK___","_____KDOOOK_____","_____KDOOOK_____","___KKGDOOOGKK___","__KGGGDOOOGGGK__","__KGGGDOOOGGGK__","___KKKKKKKKKK___"]
+    piranha:["___KKKKKKKKK____","__KGRWWWWWWRGK__","_KGGKGRWWWRGKGGK","_KGGK_KGWRGK_KGG","_KGGGK_KGGK_KGGG","_KGGOK_KGOK_KOGG","__KGGK_KGGK_KGGK","__KGGK_KGGK_KGGK","___KGKKKKKKKGK__","____KGGGGGGGK___","_____KDOOOK_____","_____KDOOOK_____","___KKGDOOOGKK___","__KGGGDOOOGGGK__","__KGGGDOOOGGGK__","___KKKKKKKKKK___"],
+    heart:  ["________________","__KKKK__KKKK____","_KRRRRKKRRRRK___","KRRRRRRRRRRRRRK_","KRRRRRRRRRRRRRK_","KRRRRRRRRRRRRRK_","_KRRRRRRRRRRRK__","_KRRRRRRRRRRRK__","__KRRRRRRRRRK___","__KRRRRRRRRRK___","___KRRRRRRRK____","___KRRRRRRRK____","____KRRRRRK_____","____KRRRRRK_____","_____KRRK_______","______KK________"]
   };
 
   const COLORFUL_TITLE_HTML = '<span class="title-letter" style="color:#0092d6">S</span><span class="title-letter" style="color:#e40008">U</span><span class="title-letter" style="color:#f8b800">P</span><span class="title-letter" style="color:#00a800">E</span><span class="title-letter" style="color:#0092d6">R</span> <span class="title-letter" style="color:#e40008">G</span><span class="title-letter" style="color:#f8b800">R</span><span class="title-letter" style="color:#00a800">A</span><span class="title-letter" style="color:#0092d6">M</span><span class="title-letter" style="color:#e40008">M</span><span class="title-letter" style="color:#f8b800">A</span><span class="title-letter" style="color:#00a800">R</span> <span class="title-letter" style="color:#0092d6">W</span><span class="title-letter" style="color:#e40008">O</span><span class="title-letter" style="color:#f8b800">R</span><span class="title-letter" style="color:#00a800">L</span><span class="title-letter" style="color:#0092d6">D</span>';
@@ -284,6 +286,7 @@ const IRREGULAR_BANK = [
   }
 
   let score = 0; let coinCount = 0; let timer = 300; let frameCount = 0;
+  const MAX_HEARTS = 3; let hearts = 0;
   let gameState = 'HOME';
   let cameraX = 0;
 
@@ -312,7 +315,7 @@ const IRREGULAR_BANK = [
     "                                      C                                                 B B V                                                               C C C C                        BBBBBBBBBB                                      ",
     "                      C C C    M      Q        M              M     C   C     M        B B  P  M             M               M              M            M  B B B B         M            BBBBBBBBBBBB                                      ",
     "                    S Q B Q                                         Q   Q               B B P      S                                                        B B B B S                  BBBBBBBBBBBBBB      F                               ",
-    "            C     E               V       E                                            B B  P                                                       E E     B B B B   E E            BBBBBBBBBBBBBBBB      B           H                   ",
+    "            C     E               V       E                                            B B  P  J                                                    E E     B B B B   E E            BBBBBBBBBBBBBBBB      B           H                   ",
     "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
     "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
     "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -328,7 +331,7 @@ const IRREGULAR_BANK = [
     "                                                        Q                                                             V                                        V                                                                           ",
     "                                    M   C                       M                      M                              P  M                      M              P        M               C                                                  ",
     "                                                                                          C                           P                                        P                                           F                               ",
-    "               E                                                      E                                    C          P E       S    E             S          CP                         C                             H                   ",
+    "               E                                                      E                        J           C          P E       S    E             S          CP                         C                             H                   ",
     "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
     "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
     "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -344,7 +347,7 @@ const IRREGULAR_BANK = [
     "                                                                 C                  V                           C                                Q    V                                                                                    ",
     "                                     M                          M    C              PM                      M               M                   M  C  P                    M            M                                                  ",
     "                                                     C                              P                                                                 P                                                    F                               ",
-    "                                   E                           E                    P    E           S                               S                PE                                                               H                   ",
+    "                                   E                           E                    P    E     J     S                               S                PE                                                               H                   ",
     "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
     "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
     "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
@@ -384,6 +387,7 @@ const IRREGULAR_BANK = [
           blocks.push({ x: c * TILE_SIZE, y: (r + 2) * TILE_SIZE, type: 'goldpipe' });
         }
         if (type === 'S') collectibles.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, collected: false, isStar: true });
+        if (type === 'J') collectibles.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, collected: false, isHeart: true });
         if (type === 'C') collectibles.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, collected: false });
         if (type === 'E') enemies.push(new Enemy(c * TILE_SIZE, r * TILE_SIZE));
         if (type === 'L') lakitus.push(new Lakitu(c * TILE_SIZE, r * TILE_SIZE));
@@ -407,14 +411,18 @@ const IRREGULAR_BANK = [
       this.x = 100; this.y = 200; this.w = 26; this.h = 32;
       this.vx = 0; this.vy = 0; this.speed = 4.5; this.jumpForce = -13.5;
       this.gravity = 0.65; this.grounded = false; this.dead = false;
+      this.invuln = 0; this.knockback = 0;
     }
     update() {
       if (this.dead) { this.vy += this.gravity; this.y += this.vy; return; }
-      if (keys.left) this.vx = -this.speed;
+      if (this.invuln > 0) this.invuln--;
+      if (this.knockback > 0) {
+        this.knockback--;
+      } else if (keys.left) this.vx = -this.speed;
       else if (keys.right) this.vx = this.speed;
       else this.vx = 0;
       this.x += this.vx; this.checkCollisions(true);
-      if (keys.jump && this.grounded) { this.vy = this.jumpForce; this.grounded = false; }
+      if (keys.jump && this.grounded && this.knockback === 0) { this.vy = this.jumpForce; this.grounded = false; }
       this.vy += this.gravity; this.y += this.vy; this.grounded = false;
       this.checkCollisions(false);
       if (this.y > 600) triggerGameOver();
@@ -510,7 +518,8 @@ const IRREGULAR_BANK = [
   function startCountdown() {
     if (!currentMode) return; // must select a grammar mode first
     currentLevelIndex = 0;
-    gameState = 'COUNTDOWN'; score = 0; coinCount = 0; timer = 300;
+    gameState = 'COUNTDOWN'; score = 0; coinCount = 0; timer = 300; hearts = 0;
+    updateHeartsDisplay();
     buildQuestionQueue();
     player.reset(); buildLevel(); cameraX = 0;
     document.getElementById('mode-select').style.display = 'none';
@@ -685,13 +694,29 @@ const IRREGULAR_BANK = [
   }, {passive: false});
 
   function checkEntityCollision(entity, isFatal = true, isStompable = true) {
+    if (player.invuln > 0) return false; // brief immunity right after taking a hit
     if (player.x < entity.x + entity.w && player.x + player.w > entity.x &&
         player.y < entity.y + entity.h && player.y + player.h > entity.y) {
       if (isStompable && player.vy > 0 && player.y + player.h < entity.y + 16) {
         entity.alive = false; player.vy = -9; score += 200; return true;
-      } else if (isFatal) { triggerGameOver(); }
+      } else if (isFatal) {
+        if (hearts > 0) {
+          hearts--;
+          updateHeartsDisplay();
+          player.invuln = 90; // ~1.5s of blinking immunity
+          player.knockback = 15; // ~0.25s of ignoring input for the bounce
+          player.vx = (player.x < entity.x) ? -6 : 6;
+          player.vy = -8;
+        } else {
+          triggerGameOver();
+        }
+      }
     }
     return false;
+  }
+
+  function updateHeartsDisplay() {
+    document.getElementById('heartsDisplay').innerText = '♥'.repeat(hearts) + '♡'.repeat(MAX_HEARTS - hearts);
   }
 
   // ---- Decorative, purely-visual home-screen background (goombas patrolling,
@@ -774,6 +799,10 @@ const IRREGULAR_BANK = [
               player.y < c.y + TILE_SIZE && player.y + player.h > c.y) {
             c.collected = true;
             if (c.isQuizStar) { score += 500; openQuizQuestion(c); }
+            else if (c.isHeart) {
+              if (hearts < MAX_HEARTS) { hearts++; updateHeartsDisplay(); score += 200; }
+              else { score += 300; } // already full -- bonus score instead
+            }
             else if (c.isStar) { score += 1000; }
             else { coinCount++; score += 50; }
           }
@@ -917,14 +946,15 @@ const IRREGULAR_BANK = [
 
     // Layer 4: Coins & Entities
     for (let c of collectibles) {
-      if (!c.collected && c.x + TILE_SIZE >= cameraX && c.x <= cameraX + 800) drawSprite(c.isStar ? SPRITES.star : SPRITES.coin, c.x, c.y);
+      if (!c.collected && c.x + TILE_SIZE >= cameraX && c.x <= cameraX + 800) drawSprite(c.isHeart ? SPRITES.heart : (c.isStar ? SPRITES.star : SPRITES.coin), c.x, c.y);
     }
     for (let l of lakitus) l.draw();
     for (let e of enemies) e.draw();
 
     // Layer 5: Player
     if (gameState !== 'WIN_WAIT') {
-      if (!player.dead || (player.dead && frameCount % 10 < 5)) player.draw();
+      const blinking = player.dead || player.invuln > 0;
+      if (!blinking || frameCount % 10 < 5) player.draw();
     }
 
     ctx.restore();
