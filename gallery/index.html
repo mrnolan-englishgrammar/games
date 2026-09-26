@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELL Games</title>
+<style>
+  :root {
+    --bg: #fdf3e3;
+    --card-bg: #fff8ec;
+    --accent: #ffd166;
+    --text: #3a2e1f;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+  }
+  h1 {
+    text-align: center;
+    margin: 0;
+  }
+  .subtitle {
+    text-align: center;
+    margin: 4px 0 24px;
+    font-size: 15px;
+    font-weight: 400;
+    color: #6b5c47;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+  }
+  .media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: #ddd;
+    overflow: hidden;
+  }
+  .media img,
+  .media video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .media video {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .card.playing .media video {
+    opacity: 1;
+  }
+  .card.playing .media img {
+    opacity: 0;
+  }
+  .play-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  .info {
+    padding: 12px 14px;
+  }
+  .info h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+  }
+  .info p {
+    margin: 0;
+    font-size: 13px;
+    color: #6b5c47;
+  }
+
+  /* Lightbox for playing the actual game inline */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox-inner {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .lightbox-inner iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>ELL Games</h1>
+<p class="subtitle">Improving your English</p>
+<div class="grid" id="grid"></div>
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose">&times;</button>
+    <iframe id="lightboxFrame" src="" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+/* ---------------------------------------------------------------
+   EDIT THIS LIST to add/remove/reorder games.
+   - thumbnail: static image shown by default (any hosted image URL)
+   - preview:   OPTIONAL short muted looping clip (mp4/webm, 3-6s).
+                Leave blank/omit to just get a hover zoom effect.
+   - url:       the game's own page/HTML file, opened in the lightbox.
+                Point this at wherever your game is already hosted.
+----------------------------------------------------------------*/
+const GAMES = [
+  {
+    title: "Starfighter",
+    description: "Answer grammar questions to launch your ship and survive arcade waves.",
+    thumbnail: "assets/thumbnails/starfighter.jpg",
+    preview: "assets/previews/starfighter.webm",
+    url: "assets/games/starfighter/index.html"
+  },
+  {
+    title: "Super Grammar World",
+    description: "Run, jump, and collect stars while answering grammar questions across 3 levels.",
+    thumbnail: "assets/thumbnails/super-grammar-world.jpg",
+    preview: "assets/previews/super-grammar-world.webm",
+    url: "assets/games/super-grammar-world/index.html"
+  }
+];
+
+const grid = document.getElementById("grid");
+const lightbox = document.getElementById("lightbox");
+const lightboxFrame = document.getElementById("lightboxFrame");
+const lightboxClose = document.getElementById("lightboxClose");
+
+GAMES.forEach(game => {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const media = document.createElement("div");
+  media.className = "media";
+
+  const img = document.createElement("img");
+  img.src = game.thumbnail;
+  img.alt = game.title;
+  media.appendChild(img);
+
+  let video = null;
+  if (game.preview) {
+    video = document.createElement("video");
+    video.src = game.preview;
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.preload = "none";
+    media.appendChild(video);
+
+    const badge = document.createElement("span");
+    badge.className = "play-badge";
+    badge.textContent = "Preview";
+    media.appendChild(badge);
+  }
+
+  const info = document.createElement("div");
+  info.className = "info";
+  info.innerHTML = `<h3>${game.title}</h3><p>${game.description || ""}</p>`;
+
+  card.appendChild(media);
+  card.appendChild(info);
+  grid.appendChild(card);
+
+  // Desktop: hover plays preview. Touch devices: tap toggles preview,
+  // second tap (or the click below) opens the game.
+  const startPreview = () => {
+    if (!video) return;
+    card.classList.add("playing");
+    video.currentTime = 0;
+    video.play().catch(() => {});
+  };
+  const stopPreview = () => {
+    if (!video) return;
+    card.classList.remove("playing");
+    video.pause();
+  };
+
+  card.addEventListener("mouseenter", startPreview);
+  card.addEventListener("mouseleave", stopPreview);
+  card.addEventListener("focus", startPreview);
+  card.addEventListener("blur", stopPreview);
+
+  card.addEventListener("click", () => openGame(game.url));
+  card.setAttribute("tabindex", "0");
+  card.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") openGame(game.url);
+  });
+});
+
+function openGame(url) {
+  lightboxFrame.src = url;
+  lightbox.classList.add("open");
+}
+function closeLightbox() {
+  lightbox.classList.remove("open");
+  lightboxFrame.src = "";
+}
+lightboxClose.addEventListener("click", closeLightbox);
+lightbox.addEventListener("click", e => {
+  if (e.target === lightbox) closeLightbox();
+});
+</script>
+</body>
+</html>

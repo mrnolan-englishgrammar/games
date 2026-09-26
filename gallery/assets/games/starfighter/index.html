@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Starfighter • Grammar Arcade</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:10px 10px;background:#050716;color:#e9faff;font-family:ui-monospace,'Courier New',monospace;background-image:radial-gradient(ellipse at top,#192044,transparent 65%)}main{max-width:1040px;margin:auto}header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:8px}h1{font-size:clamp(20px,4vw,32px);font-style:italic;letter-spacing:-2px;margin:3px 0;text-shadow:3px 3px #583abd}h1 span{color:#6df8ff}.eyebrow{color:#fac875;font-size:10px;letter-spacing:3px}nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}button,select{font:inherit}button{cursor:pointer}nav button,select{background:#141c35;border:1px solid #58688f;color:white;padding:10px;border-radius:6px;font-size:12px}button:focus-visible,select:focus-visible,canvas:focus-visible{outline:3px solid #fff38a;outline-offset:3px}.cabinet{position:relative;border:2px solid #536696;border-radius:14px;padding:7px;background:#0c1126;box-shadow:0 0 36px #4065e922,inset 0 0 20px #5d52ab11}.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}.stat{padding:6px;background:#151c36;border-bottom:2px solid #3f5686;border-radius:5px}.stat small{display:block;color:#a5b6d9;font-size:9px;letter-spacing:2px}.stat b{display:block;color:#73f8ff;font-size:17px;margin-top:2px}.stat:nth-child(3) b{color:#ff92be}.question{background:#f7f5e9;color:#172037;border-radius:7px;padding:8px;text-align:center;margin-bottom:6px;min-height:64px}.question small{font-size:10px;letter-spacing:1px}#tense{background:#d9e2eb;padding:3px 8px;border-radius:4px;font-weight:bold}#prompt{font-family:'Trebuchet MS',sans-serif;font-size:clamp(15px,2.2vw,19px);font-weight:bold;line-height:1.35;margin-top:3px}.subject{ text-decoration:underline #e6bf00 4px;text-underline-offset:5px;text-decoration-skip-ink:none}.clue{text-decoration:underline #111 3px;text-underline-offset:5px;text-decoration-skip-ink:none}.field{position:relative;border:1px solid #425783;overflow:hidden;border-radius:7px;width:fit-content;max-width:100%;margin:0 auto}canvas{width:auto;max-width:100%;height:auto;max-height:44vh;aspect-ratio:900/580;display:block;touch-action:none;cursor:crosshair}.topline{position:absolute;top:12px;left:14px;right:14px;display:flex;justify-content:space-between;font-size:11px;letter-spacing:1px;pointer-events:none;color:#a9dfff}.answers{position:absolute;top:38%;left:5%;width:90%;display:grid;grid-template-columns:repeat(3,1fr);gap:5%}.answer{border:2px solid #72e5ff;background:#14254aee;color:white;border-radius:7px;padding:13px 4px;font-weight:bold;font-size:clamp(17px,3vw,27px);box-shadow:0 5px #071025,0 0 15px #56dcff22}.answer small{display:block;font-size:9px;color:#9fbee8;letter-spacing:2px;margin-bottom:8px}.answer:hover{background:#264777}.answer:disabled{opacity:.45;cursor:default}.answer.correct{background:#235c50;border-color:#94ffd6;opacity:1}.answer.wrong{border-color:#ff668e}.banner{position:absolute;top:17%;left:5%;width:90%;text-align:center;font-size:clamp(16px,3vw,27px);font-weight:900;color:#fff4a3;text-shadow:0 2px 8px #000;pointer-events:none}.overlay{position:absolute;inset:0;background:#04091966;display:grid;place-items:center;text-align:center;padding:20px;z-index:3}.card{max-width:520px;background:#080d22d9;border:1px solid #3a4a80;border-radius:16px;padding:22px 24px;box-shadow:0 0 40px #1c2b5c77}.card small{color:#73f8ff;letter-spacing:3px}.card h2{font-size:clamp(26px,5vw,43px);font-style:italic;margin:12px 0;color:#fff0ad}.card p{font:15px/1.65 'Trebuchet MS',sans-serif;color:#c1cee8}.card p:empty{display:none}.primary{background:#77f5ff;border:0;border-bottom:5px solid #327694;border-radius:6px;padding:14px 25px;color:#0b1830;font-weight:900}.modebar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}.modeBtn{background:#141c35;border:2px solid #58688f;color:#cfe3ff;padding:11px 6px;border-radius:7px;font:12px/1.3 ui-monospace,monospace;font-weight:bold;cursor:pointer}.modeBtn:hover{background:#203056}.modeBtn.selected{background:#1f3a63;border-color:#77f5ff;color:#eafcff;box-shadow:0 0 12px #56dcff44}.rewards{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.rewards span{padding:7px 10px;background:#17203d;border:1px solid #40557c;border-radius:5px;font-size:11px;color:#b5c8eb}.rewards .on{color:#fff4a2;border-color:#ffd07c;background:#493627}#feedback{font:14px/1.5 'Trebuchet MS',sans-serif;min-height:26px;padding:5px 3px 0;color:#dde8fc}.help{text-align:center;font:11px/1.45 'Trebuchet MS',sans-serif;color:#a3b5d6;margin:8px 0}[hidden]{display:none!important}@media(max-width:600px){body{padding:8px 5px}header{align-items:flex-start}nav{max-width:170px}nav button,select{font-size:10px;padding:8px}.eyebrow{font-size:8px;letter-spacing:1px}.cabinet{padding:6px}.stat{padding:7px}.stat small{font-size:8px;letter-spacing:.4px}.stat b{font-size:18px}.question{padding:9px}.answer{padding:8px 3px}.answer small{font-size:7px;letter-spacing:0}.topline{font-size:8px;top:8px;left:8px;right:8px}.overlay{position:fixed}.card p{font-size:15px}.rewards span{font-size:9px}.modeBtn{font-size:10px;padding:9px 3px}}
+</style></head><body><main>
+<header><div><div class="eyebrow">GRAMMAR ARCADE / FLIGHT SCHOOL</div><h1>STAR<span>FIGHTER</span></h1></div><nav><select id="topic" aria-label="Grammar topic"><option value="toBe">1 · To Be</option><option value="toHave">2 · To Have</option><option value="irregular">3 · Irregular Verbs</option></select><button id="practice">Arcade</button><button id="sound" aria-pressed="false">Sound off</button><button id="pause">Pause</button><button id="home">Home</button></nav></header>
+<section class="cabinet"><div class="hud"><div class="stat"><small>SCORE</small><b id="score">00000</b></div><div class="stat"><small>WAVE</small><b id="wave">01</b></div><div class="stat"><small>SHIP SHIELDS</small><b id="hull">♥ ♥ ♥</b></div><div class="stat"><small>WAVE LEFT</small><b id="clock">READY</b></div></div>
+<div class="question"><small id="instruction">CHOOSE THE CORRECT WORD</small> <small id="tense">(PAST)</small><div id="prompt"></div></div>
+<div class="field"><canvas id="space" width="900" height="580" tabindex="0" aria-label="Arcade flight area. Drag to steer on a tablet, move your mouse, or use arrow keys. Your ship fires automatically during waves."></canvas><div class="topline"><span id="sector">01 / NEON ORBIT</span><span id="radar">SYSTEMS READY</span></div><div class="answers" id="answers"></div><div class="banner" id="banner" hidden></div></div>
+<div class="rewards"><span id="pierce">P · PIERCING LASER</span><span id="spread">W · TRIPLE SHOT</span><span id="shield">S · SHIELD REPAIR</span><span id="accuracy">0 / 0 FIRST TRY</span></div><div id="feedback" role="status" aria-live="polite"></div>
+<div class="overlay" id="overlay"><div class="card"><small>INSERT CURIOSITY · PRESS PLAY</small><h2 id="title">READY, PILOT?</h2><p id="description"></p><div class="modebar" id="modebar" hidden><button class="modeBtn" data-topic="toBe">1 · TO BE</button><button class="modeBtn" data-topic="toHave">2 · TO HAVE</button><button class="modeBtn" data-topic="irregular">3 · IRREGULAR VERBS</button></div><button class="primary" id="start">LAUNCH</button></div></div></section>
+<p class="help">Mouse: move to steer · iPad: press and drag · Keyboard: arrows / WASD · Auto-fire during waves · P: pause<br>Read between waves. Yellow underline = subject; black underline = time clue. Irregular verbs use simple past only.</p>
+</main><script>
+'use strict';
+const $=id=>document.getElementById(id),canvas=$('space'),ctx=canvas.getContext('2d'),W=900,H=580,DPR=Math.min(window.devicePixelRatio||1,2),reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+canvas.width=W*DPR;canvas.height=H*DPR;
+const FORM_OPTIONS={
+  am:['am','is','was'],is:['is','are','was'],are:['are','is','were'],was:['was','is','were'],were:['were','are','was'],'will be':['will be','is','was'],
+  have:['have','has','had'],has:['has','have','had'],had:['had','has','will have'],'will have':['will have','have','had']
+};
+const grammarQuestion=(tense,sentence,subject,clue,ans)=>({prompt:`[${tense}] ${sentence}`,subject,clue,ans,options:FORM_OPTIONS[ans]});
+const irregularQuestion=(sentence,ans,error,present)=>({prompt:`[PAST] ${sentence}`,ans,options:[ans,error,present]});
+const bank={
+  toBe:[
+    grammarQuestion('PRESENT','Today, I ___ ready for class.','I','Today','am'),
+    grammarQuestion('PRESENT','Right now, I ___ in the library.','I','Right now','am'),
+    grammarQuestion('PRESENT','This morning, I ___ very happy.','I','This morning','am'),
+    grammarQuestion('PRESENT','At the moment, I ___ with my group.','I','At the moment','am'),
+    grammarQuestion('PRESENT','Every Monday, I ___ at music practice.','I','Every Monday','am'),
+    grammarQuestion('PRESENT','Usually, I ___ early for school.','I','Usually','am'),
+    grammarQuestion('PRESENT','After lunch, I ___ in the art room.','I','After lunch','am'),
+    grammarQuestion('PRESENT','On school days, I ___ busy in the morning.','I','On school days','am'),
+    grammarQuestion('PRESENT','Now, I ___ hungry.','I','Now','am'),
+    grammarQuestion('PRESENT','This week, I ___ the class helper.','I','This week','am'),
+
+    grammarQuestion('PRESENT','Today, Aisha ___ excited about the trip.','Aisha','Today','is'),
+    grammarQuestion('PRESENT','Right now, Mateo ___ in the computer room.','Mateo','Right now','is'),
+    grammarQuestion('PRESENT','This morning, the rabbit ___ inside its cage.','the rabbit','This morning','is'),
+    grammarQuestion('PRESENT','At the moment, our teacher ___ near the board.','our teacher','At the moment','is'),
+    grammarQuestion('PRESENT','Every afternoon, the school bus ___ outside.','the school bus','Every afternoon','is'),
+    grammarQuestion('PRESENT','Usually, the baby ___ happy after lunch.','the baby','Usually','is'),
+    grammarQuestion('PRESENT','Today, my science book ___ in my bag.','my science book','Today','is'),
+    grammarQuestion('PRESENT','Right now, the playground ___ very quiet.','the playground','Right now','is'),
+    grammarQuestion('PRESENT','This week, our classroom ___ full of artwork.','our classroom','This week','is'),
+    grammarQuestion('PRESENT','Now, the soup ___ warm.','the soup','Now','is'),
+
+    grammarQuestion('PRESENT','Today, they ___ ready for the match.','they','Today','are'),
+    grammarQuestion('PRESENT','Right now, we ___ in the music room.','we','Right now','are'),
+    grammarQuestion('PRESENT','This morning, you ___ very cheerful.','you','This morning','are'),
+    grammarQuestion('PRESENT','At the moment, the students ___ in a circle.','the students','At the moment','are'),
+    grammarQuestion('PRESENT','Every afternoon, my shoes ___ under the bench.','my shoes','Every afternoon','are'),
+    grammarQuestion('PRESENT','Usually, the birds ___ near the pond.','the birds','Usually','are'),
+    grammarQuestion('PRESENT','Today, Ava and Noor ___ partners.','Ava and Noor','Today','are'),
+    grammarQuestion('PRESENT','Right now, my parents ___ at work.','my parents','Right now','are'),
+    grammarQuestion('PRESENT','This week, the new books ___ on display.','the new books','This week','are'),
+    grammarQuestion('PRESENT','Now, our lunches ___ ready.','our lunches','Now','are'),
+
+    grammarQuestion('PAST','Yesterday, Hana ___ at the dentist.','Hana','Yesterday','was'),
+    grammarQuestion('PAST','Last night, the dog ___ under the table.','the dog','Last night','was'),
+    grammarQuestion('PAST','This morning, my brother ___ very sleepy.','my brother','This morning','was'),
+    grammarQuestion('PAST','Earlier today, the classroom ___ noisy.','the classroom','Earlier today','was'),
+    grammarQuestion('PAST','On Monday, Lucas ___ away from school.','Lucas','On Monday','was'),
+    grammarQuestion('PAST','Last week, our teacher ___ in Canada.','our teacher','Last week','was'),
+    grammarQuestion('PAST','Before lunch, the baby ___ hungry.','the baby','Before lunch','was'),
+    grammarQuestion('PAST','At noon, the bus ___ outside the school.','the bus','At noon','was'),
+    grammarQuestion('PAST','Two days ago, Priya ___ at the beach.','Priya','Two days ago','was'),
+    grammarQuestion('PAST','During the game, the ball ___ behind the goal.','the ball','During the game','was'),
+
+    grammarQuestion('PAST','Yesterday, we ___ at the science museum.','we','Yesterday','were'),
+    grammarQuestion('PAST','Last night, they ___ very tired.','they','Last night','were'),
+    grammarQuestion('PAST','This morning, the children ___ in the garden.','the children','This morning','were'),
+    grammarQuestion('PAST','Earlier today, you ___ near the library.','you','Earlier today','were'),
+    grammarQuestion('PAST','On Monday, the players ___ ready to practise.','the players','On Monday','were'),
+    grammarQuestion('PAST','Last week, Mei and Sofia ___ class helpers.','Mei and Sofia','Last week','were'),
+    grammarQuestion('PAST','Before class, my pencils ___ on the floor.','my pencils','Before class','were'),
+    grammarQuestion('PAST','At noon, the shops ___ busy.','the shops','At noon','were'),
+    grammarQuestion('PAST','Two days ago, the puppies ___ at the vet.','the puppies','Two days ago','were'),
+    grammarQuestion('PAST','During recess, our friends ___ on the field.','our friends','During recess','were'),
+
+    grammarQuestion('FUTURE','Tomorrow, I ___ at the park.','I','Tomorrow','will be'),
+    grammarQuestion('FUTURE','Next week, Zara ___ in the school play.','Zara','Next week','will be'),
+    grammarQuestion('FUTURE','Later today, the soup ___ ready.','the soup','Later today','will be'),
+    grammarQuestion('FUTURE','Soon, we ___ at the train station.','we','Soon','will be'),
+    grammarQuestion('FUTURE','On Friday, you ___ the team leader.','you','On Friday','will be'),
+    grammarQuestion('FUTURE','Next month, our class ___ on holiday.','our class','Next month','will be'),
+    grammarQuestion('FUTURE','This evening, they ___ at home.','they','This evening','will be'),
+    grammarQuestion('FUTURE','In an hour, the bus ___ here.','the bus','In an hour','will be'),
+    grammarQuestion('FUTURE','Next year, the twins ___ in Grade 6.','the twins','Next year','will be'),
+    grammarQuestion('FUTURE','After lunch, my friends ___ in the gym.','my friends','After lunch','will be')
+  ],
+  toHave:[
+    grammarQuestion('PRESENT','Today, I ___ a new library book.','I','Today','have'),
+    grammarQuestion('PRESENT','Right now, we ___ three coloured pencils.','we','Right now','have'),
+    grammarQuestion('PRESENT','Every day, they ___ fruit with lunch.','they','Every day','have'),
+    grammarQuestion('PRESENT','This morning, you ___ plenty of time.','you','This morning','have'),
+    grammarQuestion('PRESENT','On Mondays, the students ___ music class.','the students','On Mondays','have'),
+    grammarQuestion('PRESENT','Usually, my friends ___ games after school.','my friends','Usually','have'),
+    grammarQuestion('PRESENT','At lunch, Nina and Omar ___ sandwiches.','Nina and Omar','At lunch','have'),
+    grammarQuestion('PRESENT','After school, the players ___ football practice.','the players','After school','have'),
+    grammarQuestion('PRESENT','At the moment, I ___ one question.','I','At the moment','have'),
+    grammarQuestion('PRESENT','This week, we ___ a class project.','we','This week','have'),
+
+    grammarQuestion('PRESENT','Today, Elena ___ a purple backpack.','Elena','Today','has'),
+    grammarQuestion('PRESENT','Right now, my teacher ___ the markers.','my teacher','Right now','has'),
+    grammarQuestion('PRESENT','Every morning, the dog ___ fresh water.','the dog','Every morning','has'),
+    grammarQuestion('PRESENT','This week, Daniel ___ swimming practice.','Daniel','This week','has'),
+    grammarQuestion('PRESENT','Usually, the library ___ many visitors.','the library','Usually','has'),
+    grammarQuestion('PRESENT','At lunch, the baby ___ a small banana.','the baby','At lunch','has'),
+    grammarQuestion('PRESENT','On Fridays, our class ___ art.','our class','On Fridays','has'),
+    grammarQuestion('PRESENT','At the moment, the robot ___ one red light.','the robot','At the moment','has'),
+    grammarQuestion('PRESENT','Every summer, my family ___ a picnic.','my family','Every summer','has'),
+    grammarQuestion('PRESENT','Today, the school ___ a sports event.','the school','Today','has'),
+
+    grammarQuestion('PAST','Yesterday, I ___ a piano lesson.','I','Yesterday','had'),
+    grammarQuestion('PAST','Last night, they ___ soup for dinner.','they','Last night','had'),
+    grammarQuestion('PAST','This morning, Maya ___ a headache.','Maya','This morning','had'),
+    grammarQuestion('PAST','Earlier today, we ___ a fire drill.','we','Earlier today','had'),
+    grammarQuestion('PAST','On Tuesday, the team ___ basketball practice.','the team','On Tuesday','had'),
+    grammarQuestion('PAST','Last week, Noah ___ a spelling test.','Noah','Last week','had'),
+    grammarQuestion('PAST','Before lunch, you ___ a short break.','you','Before lunch','had'),
+    grammarQuestion('PAST','At the party, the children ___ chocolate cake.','the children','At the party','had'),
+    grammarQuestion('PAST','Two days ago, my sister ___ a dance class.','my sister','Two days ago','had'),
+    grammarQuestion('PAST','During science class, our group ___ an idea.','our group','During science class','had'),
+
+    grammarQuestion('FUTURE','Tomorrow, I ___ a swimming lesson.','I','Tomorrow','will have'),
+    grammarQuestion('FUTURE','Next week, Fatima ___ a new library card.','Fatima','Next week','will have'),
+    grammarQuestion('FUTURE','Later today, we ___ time to play.','we','Later today','will have'),
+    grammarQuestion('FUTURE','On Friday, the students ___ a class party.','the students','On Friday','will have'),
+    grammarQuestion('FUTURE','Next month, my family ___ a holiday.','my family','Next month','will have'),
+    grammarQuestion('FUTURE','This evening, you ___ a video call.','you','This evening','will have'),
+    grammarQuestion('FUTURE','In an hour, the team ___ another match.','the team','In an hour','will have'),
+    grammarQuestion('FUTURE','Next year, our school ___ a new playground.','our school','Next year','will have'),
+    grammarQuestion('FUTURE','After lunch, they ___ reading time.','they','After lunch','will have'),
+    grammarQuestion('FUTURE','Soon, my brother ___ a new bicycle.','my brother','Soon','will have')
+  ],
+  irregular:[
+    irregularQuestion('Last Saturday, we ___ photos at the zoo.','took','taked','take'),
+    irregularQuestion('The cup ___ when it hit the floor.','broke','breaked','breaks'),
+    irregularQuestion('At lunch, I ___ beside my best friend.','sat','sitted','sit'),
+    irregularQuestion('Yesterday, our teacher ___ a new game.','brought','bringed','brings'),
+    irregularQuestion('During the show, Amir ___ clearly.','spoke','speaked','speaks'),
+    irregularQuestion('After the lesson, the students ___ the rule.','understood','understanded','understand'),
+    irregularQuestion('Last week, I ___ a bad cold.','had','haved','have'),
+    irregularQuestion('On Sunday, we ___ across the pool.','swam','swimmed','swim'),
+    irregularQuestion('Yesterday, my sister ___ her blue hat.','lost','loosed','loses'),
+    irregularQuestion('At the party, Ella ___ me a card.','gave','gived','gives'),
+    irregularQuestion('Over time, the tiny plant ___ very tall.','became','becomed','becomes'),
+    irregularQuestion('After football, the players ___ lots of water.','drank','drinked','drink'),
+    irregularQuestion('This morning, I ___ the red notebook.','chose','choosed','choose'),
+    irregularQuestion('Last summer, the birds ___ over the lake.','flew','flyed','fly'),
+    irregularQuestion('Yesterday, my uncle ___ us to school.','drove','drived','drives'),
+    irregularQuestion('Last term, Ms. Chen ___ our art class.','taught','teached','teaches'),
+    irregularQuestion('After the race, I ___ tired.','felt','feeled','feel'),
+    irregularQuestion('During recess, the ball ___ into a puddle.','fell','falled','falls'),
+    irregularQuestion('This morning, Ben ___ before his alarm.','woke','waked','wakes'),
+    irregularQuestion('In the hallway, we ___ a funny noise.','heard','heared','hear'),
+    irregularQuestion('Last night, I ___ a comic book.','read','readed','reads'),
+    irregularQuestion('Yesterday, Sara ___ her lunchbox.','forgot','forgetted','forgets'),
+    irregularQuestion('After school, we ___ ice cream.','got','getted','get'),
+    irregularQuestion('I ___ the answer yesterday.','knew','knowed','know'),
+    irregularQuestion('At dinner, Dad ___ us a funny story.','told','telled','tells'),
+    irregularQuestion('On Monday, Mia ___ her new jacket.','wore','weared','wears'),
+    irregularQuestion('The baby ___ for ten hours last night.','slept','sleeped','sleeps'),
+    irregularQuestion('For the project, I ___ all my notes.','kept','keeped','keep'),
+    irregularQuestion('After lunch, the class ___ the museum.','left','leaved','leaves'),
+    irregularQuestion('Last weekend, my brother ___ a football.','bought','buyed','buys'),
+    irregularQuestion('During the game, our goalkeeper ___ the ball.','caught','catched','catches'),
+    irregularQuestion('In art class, Lina ___ the paper carefully.','cut','cutted','cuts'),
+    irregularQuestion('Yesterday, the coach ___ with the problem calmly.','dealt','dealed','deals'),
+    irregularQuestion('At the beach, we ___ a beautiful shell.','found','finded','finds'),
+    irregularQuestion('During the photo, I ___ the sign.','held','holded','holds'),
+    irregularQuestion('For breakfast, Mum ___ banana pancakes.','made','maked','makes'),
+    irregularQuestion('At the library, I ___ my new reading partner.','met','meeted','meets'),
+    irregularQuestion('Yesterday, we ___ for the bus tickets.','paid','payed','pay'),
+    irregularQuestion('Before class, Jay ___ his bag under the desk.','put','putted','puts'),
+    irregularQuestion('In the race, the rabbit ___ very quickly.','ran','runned','runs'),
+    irregularQuestion('This morning, our principal ___ hello.','said','sayed','says'),
+    irregularQuestion('At the market, my aunt ___ fresh fruit.','sold','selled','sells'),
+    irregularQuestion('Last week, I ___ a letter to my cousin.','sent','sended','sends'),
+    irregularQuestion('During the song, everyone ___ together.','stood','standed','stands')
+  ]
+};
+const palette=[['NEON ORBIT',210,275],['ION NEBULA',278,325],['EMERALD RIFT',155,220],['SOLAR DREAM',30,285]];
+let state='MENU',previous='',topic='toBe',practice=false,sound=false,audio=null,age=0,last=null,wave=0,score=0,hull=3,maxHull=3,first=0,answered=0,queue=[],q,wrong=false,timer=0,waveTime=0,fireClock=0,spawnClock=0,shots=[],enemies=[],hostile=[],drops=[],particles=[],rings=[],kills=0,invuln=0,power={pierce:0,spread:0},perks={rapid:0,power:0,shield:0},bannerTime=0,warp=0,visualHue=210,visualAccent=275,boss=null,bossMode=false,bossesDefeated=0,shieldDrops=0,finalBossKind=3;
+const ship={x:450,y:495,tx:450,ty:495,bank:0},keys=new Set();let pointer=null;
+const stars=Array.from({length:180},(_,i)=>({x:Math.random()*W,y:Math.random()*H,z:i%4,p:Math.random()*6.28}));
+const comets=[];let cometClock=2;
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const speed=()=>Math.min(2.35,1+Math.max(0,wave-1)*.09);const sector=()=>Math.min(4,Math.floor(Math.max(0,wave-1)/3)+1);
+function beep(f=600,d=.08,type='square'){if(!sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audio.destination);o.type=type;o.frequency.setValueAtTime(f,audio.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(50,f*.45),audio.currentTime+d);g.gain.setValueAtTime(.025,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+d);o.start();o.stop(audio.currentTime+d)}catch{}}
+function say(text,seconds=2){$('banner').textContent=text;$('banner').hidden=!text;bannerTime=seconds}
+function hud(){$('score').textContent=String(score).padStart(5,'0');$('wave').textContent=bossMode?'BOSS':String(Math.max(1,wave)).padStart(2,'0');$('hull').textContent=practice?'∞':('♥ '.repeat(hull)+'♡ '.repeat(Math.max(0,maxHull-hull))).trim();$('clock').textContent=state==='ACTION'?(bossMode?(waveTime>0?Math.ceil(waveTime)+' BOSS':'ENRAGED'):Math.ceil(waveTime)+' SEC'):'READY';for(const p of ['pierce','spread']){$(p).className=power[p]>0?'on':'';$(p).textContent=(p==='pierce'?'P · PIERCING':'W · TRIPLE')+(power[p]>0?' '+Math.ceil(power[p])+'s':' SHOT')}$('accuracy').textContent=first+' / '+answered+' FIRST TRY';$('pause').disabled=['MENU','END','UPGRADE'].includes(state);$('practice').textContent=practice?'Practice ∞':'Arcade';}
+function overlay(title,text,button,action){$('overlay').hidden=false;$('title').textContent=title;$('description').textContent=text;$('start').textContent=button;$('start').onclick=action}
+function syncModeButtons(){$('topic').value=topic;[...$('modebar').children].forEach(b=>b.classList.toggle('selected',b.dataset.topic===topic))}
+function buildQuestionQueue(category){if(category==='toBe')return shuffle(['am','is','are','was','were','will be'].flatMap(form=>shuffle(bank.toBe.filter(item=>item.ans===form)).slice(0,2)));if(category==='toHave')return shuffle(['have','has','had','will have'].flatMap(form=>shuffle(bank.toHave.filter(item=>item.ans===form)).slice(0,3)));return shuffle(bank.irregular).slice(0,12)}
+function cueIndex(text,value){if(!value)return-1;let i=text.indexOf(value);while(i>=0){const before=text[i-1]||' ',after=text[i+value.length]||' ';if(!/[A-Za-z]/.test(before)&&!/[A-Za-z]/.test(after))return i;i=text.indexOf(value,i+1)}return-1}
+function renderQuestion(solved=false){const text=q.sentence.replace('___',solved?q.ans:'_____'),marks=[];for(const [value,cls] of [[q.subject,'subject'],[q.clue,'clue']]){const i=cueIndex(text,value);if(i>=0)marks.push({i,end:i+value.length,cls})}marks.sort((a,b)=>a.i-b.i);$('prompt').replaceChildren();let pos=0;for(const m of marks){$('prompt').append(document.createTextNode(text.slice(pos,m.i)));const span=document.createElement('span');span.className=m.cls;span.textContent=text.slice(m.i,m.end);$('prompt').append(span);pos=m.end}$('prompt').append(document.createTextNode(text.slice(pos)));$('tense').textContent='('+q.tense+')'}
+function question(){state='QUESTION';shots=[];hostile=[];enemies=[];drops=[];keys.clear();pointer=null;if(!queue.length)queue=buildQuestionQueue(topic);const row=queue.shift();q={...row,sentence:row.prompt.replace(/^\[\w+\]\s*/,''),tense:row.prompt.match(/^\[(\w+)\]/)?.[1]||'PAST',options:shuffle(row.options)};wrong=false;renderQuestion();$('instruction').textContent='CHOOSE THE CORRECT WORD TO LAUNCH';$('answers').hidden=false;$('answers').replaceChildren();q.options.forEach((word,i)=>{const b=document.createElement('button');b.className='answer';const s=document.createElement('small');s.textContent='TARGET '+(i+1);b.append(s,document.createTextNode(word));b.onclick=()=>answer(i);$('answers').append(b)});$('feedback').textContent='Take your time. A correct answer launches the next arcade wave.';$('radar').textContent='READ · CHOOSE · LAUNCH';say('');hud()}
+function answer(i){if(state!=='QUESTION'||!$('answers').children[i]||$('answers').children[i].disabled)return;const b=$('answers').children[i];if(q.options[i]!==q.ans){wrong=true;b.disabled=true;b.classList.add('wrong');$('feedback').textContent=topic==='irregular'?'Try again. Choose the simple-past form.':'Try again. Use the yellow subject, black time clue and tense label.';beep(150,.18);return}answered++;if(!wrong)first++;score+=100;renderQuestion(true);b.classList.add('correct');[...$('answers').children].forEach(b=>b.disabled=true);state='LAUNCH';timer=1.6;shots=[];say('CORRECT! +100 · ENGINES READY',1.6);$('feedback').textContent='Read the completed sentence. Then steer your ship—your cannons fire automatically.';beep(1000,.18);hud()}
+function startWave(){
+ wave++;if(wave%3===1)shieldDrops=0;state='ACTION';bossMode=false;boss=null;waveTime=12;fireClock=0;spawnClock=.35;ship.tx=ship.x;ship.ty=ship.y;invuln=1.5;$('answers').hidden=true;$('instruction').textContent='FLIGHT ACTIVE · AUTO-FIRE ON';
+ const world=palette[sector()-1];$('sector').textContent='SECTOR '+sector()+' · '+world[0];$('radar').textContent='MOVE · DODGE · COLLECT';warp=1;
+ for(let i=0;i<6;i++)enemies.push(makeEnemy(90+i*144,-50-i*14,Math.min(3,Math.floor((wave-1)/3))));
+ say('WAVE '+wave+' · SECTOR '+sector(),1.8);$('feedback').textContent='Drag or move to steer. Enemy formations and attacks grow tougher each sector.';hud()
+}
+function reset(){
+ wave=score=first=answered=kills=bossesDefeated=shieldDrops=0;hull=maxHull=3;queue=[];shots=[];enemies=[];hostile=[];drops=[];particles=[];rings=[];power={pierce:0,spread:0};perks={rapid:0,power:0,shield:0};boss=null;bossMode=false;finalBossKind=3+Math.floor(Math.random()*3);invuln=warp=0;keys.clear();pointer=null;Object.assign(ship,{x:450,y:495,tx:450,ty:495,bank:0});$('pause').textContent='Pause';question();state='MENU';overlay('STARFIGHTER','','LAUNCH MISSION',()=>{$('overlay').hidden=true;state='QUESTION';hud()});$('modebar').hidden=false;syncModeButtons();hud()
+}
+function end(victory=false){
+ state='END';bossMode=false;keys.clear();pointer=null;say('');overlay(victory?'GALAXY SAVED!':'NICE FLIGHT, PILOT!',score+' points · Wave '+wave+' · '+bossesDefeated+' bosses defeated · '+first+'/'+answered+' first-try answers. '+(victory?'You completed the campaign!':'Ready to beat your flight score?'),'PLAY AGAIN',()=>{reset();$('overlay').hidden=true;state='QUESTION';hud()});$('modebar').hidden=true;hud()
+}
+const bossNames=['DISCO UFO','THUNDER SERPENT','KING SLIME','MEGA STAR GOBBLER','GLITCH QUEEN','COSMIC COLLECTOR'];
+function startBoss(){
+ bossMode=true;state='ACTION';shots=[];hostile=[];enemies=[];drops=[];waveTime=28;fireClock=0;spawnClock=99;invuln=2;warp=1;
+ const kind=sector()<4?sector()-1:finalBossKind,max=[82,108,138,185,175,195][kind];
+ boss={kind,name:bossNames[kind],x:450,y:105,t:0,hp:max,maxHp:max,fire:1.2,stage:0,flash:0};
+ $('instruction').textContent='BOSS BATTLE · BREAK THE GLOWING CORE';$('radar').textContent='WARNING · BOSS INBOUND';say('SECTOR '+sector()+' BOSS · '+boss.name,2.6);$('feedback').textContent='Watch the warning patterns, dodge the attacks and keep firing!';beep(150,.45,'sawtooth');hud()
+}
+function bossVictory(){
+ const name=boss.name;score+=500+sector()*150;bossesDefeated++;burst(boss.x,boss.y,'#fff29a',55);boss=null;bossMode=false;shots=[];hostile=[];enemies=[];drops=[];keys.clear();pointer=null;beep(1500,.35,'triangle');
+ if(wave>=12){say('FINAL BOSS DEFEATED!',2.5);setTimeout(()=>end(true),900);return}
+ showUpgrade(name)
+}
+function showUpgrade(name){
+ state='UPGRADE';$('answers').hidden=false;$('instruction').textContent=name+' DEFEATED · CHOOSE ONE UPGRADE';$('radar').textContent='SECTOR CLEAR · PILOT UPGRADE';say('BOSS CLEAR! +'+(500+sector()*150),2);
+ const choices=[['rapid','RAPID LASER','Fire faster for the rest of the mission'],['power','POWER CORE','Every laser deals extra boss damage'],['shield','SHIELD CORE','Add and restore one shield']];$('answers').replaceChildren();
+ choices.forEach(([id,title,detail],i)=>{const b=document.createElement('button');b.className='answer';const s=document.createElement('small');s.textContent='UPGRADE '+(i+1);b.append(s,document.createTextNode(title));b.title=detail;b.onclick=()=>chooseUpgrade(id,title);$('answers').append(b)});hud()
+}
+function chooseUpgrade(id,title){
+ if(state!=='UPGRADE')return;perks[id]++;if(id==='shield'){maxHull++;hull=maxHull}score+=100;[...$('answers').children].forEach(b=>b.disabled=true);say(title+' INSTALLED!',1.5);$('feedback').textContent=title+' is permanent for this mission. Next grammar transmission incoming.';state='REVIEW';timer=1.6;hud()
+}
+function pause(){if(['MENU','END'].includes(state))return;keys.clear();pointer=null;if(state==='PAUSED'){state=previous;$('overlay').hidden=true;$('pause').textContent='Pause'}else{previous=state;state='PAUSED';overlay('FLIGHT PAUSED','Your wave, upgrades and shields are safe.','RESUME',pause);$('modebar').hidden=true;$('pause').textContent='Resume'}}
+function damage(){if(invuln>0||state!=='ACTION')return;invuln=1.8;burst(ship.x,ship.y,'#ff9cbc',18);power.pierce=0;power.spread=0;if(!practice)hull--;beep(90,.25,'sawtooth');say(practice?'SHIELD RECHARGING':'SHIELD HIT!',1);hud();if(hull<=0)end()}
+function burst(x,y,color,n=15){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=45+Math.random()*180;particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.5+Math.random()*.4,color})}rings.push({x,y,r:5,life:.5,color})}
+function pickup(type){if(type==='shield'){hull=Math.min(maxHull,hull+1);invuln=Math.max(invuln,2);say('SHIELD REPAIRED!',1.2)}else{power[type]=60;say(type==='pierce'?'PIERCING LASER · SHOOT THROUGH!':'TRIPLE SHOT · WIDE FIRE!',1.4)}score+=25;beep(1400,.15);hud()}
+function fire(){const spread=power.spread>0;for(const vx of spread?[-145,0,145]:[0])shots.push({x:ship.x+(vx===0?0:Math.sign(vx)*15),y:ship.y-27,px:ship.x,py:ship.y-27,vx,vy:-640,pierce:power.pierce>0,damage:1+perks.power,hit:new Set()});beep(800,.035,'triangle')}
+let enemyID=0;
+function makeEnemy(x,y,type=0){const hp=type===2?2:type===3?3:1;return{id:enemyID++,x,y,bx:x,phase:Math.random()*6.28,t:0,type,hp,maxHp:hp,fire:1.25+Math.random()*2.2}}
+function spawn(){const col=Math.floor(Math.random()*6),base=90+col*144,s=sector();let type=0,r=Math.random();if(s===2)type=r<.58?1:0;else if(s===3)type=r<.42?2:r<.78?1:0;else if(s>=4)type=r<.38?3:r<.68?2:r<.88?1:0;enemies.push(makeEnemy(base,-30,type))}
+function maybeDrop(x,y){
+ const rate=wave<=2?.22:wave<=5?.16:wave<=8?.10:.06;if(Math.random()>=rate)return;let type;
+ if(hull<maxHull&&shieldDrops<1&&Math.random()<.2){type='shield';shieldDrops++}else type=Math.random()<.5?'spread':'pierce';drops.push({x,y,type})
+}
+function enemyShot(x,y,angle,speedMul=1){hostile.push({x,y,vx:Math.cos(angle)*115*speed()*speedMul,vy:Math.sin(angle)*115*speed()*speedMul})}
+function updateBoss(dt){
+ if(!boss)return false;const b=boss;b.t+=dt;b.flash=Math.max(0,b.flash-dt);const k=b.kind;
+ if(k===0){b.x=450+Math.sin(b.t*1.25)*285;b.y=102+Math.sin(b.t*2.2)*18}
+ else if(k===1){b.x=450+Math.sin(b.t*1.05)*330;b.y=100+Math.sin(b.t*2.1)*30}
+ else if(k===2){b.x=450+Math.sin(b.t*.72)*245;b.y=112+Math.abs(Math.sin(b.t*1.4))*28}
+ else if(k===3){b.x=450+Math.sin(b.t*.58)*220;b.y=118+Math.sin(b.t*1.3)*14}
+ else if(k===4){b.x=450+Math.sin(b.t*2.25)*305;b.y=105+Math.cos(b.t*3.1)*28}
+ else{b.x=450+Math.sin(b.t*.82)*280;b.y=104+Math.sin(b.t*1.7)*24}
+ b.fire-=dt;if(b.fire<=0&&hostile.length<42){
+  const aim=Math.atan2(ship.y-b.y,ship.x-b.x);
+  if(k===0){for(let a=-.62;a<=.62;a+=.31)enemyShot(b.x,b.y+35,Math.PI/2+a,.9);b.fire=1.25}
+  else if(k===1){enemyShot(b.x-42,b.y+25,aim-.13,1.18);enemyShot(b.x+42,b.y+25,aim+.13,1.18);b.fire=.82}
+  else if(k===2){for(const a of [-.34,0,.34])enemyShot(b.x,b.y+45,aim+a,.82);b.fire=1.05}
+  else if(k===3){for(let a=-.9;a<=.9;a+=.3)enemyShot(b.x,b.y+48,Math.PI/2+a,1.05);b.fire=1.12}
+  else if(k===4){for(let x=80;x<900;x+=145)enemyShot(x,b.y+20,Math.PI/2,1.2);b.fire=1.35}
+  else{enemyShot(b.x,b.y+42,aim,1.3);enemyShot(b.x,b.y+42,aim-.32,1);enemyShot(b.x,b.y+42,aim+.32,1);b.fire=.92}
+ }
+ const ratio=b.hp/b.maxHp;if(k===2&&b.stage===0&&ratio<.62){b.stage=1;for(const x of [b.x-70,b.x+70])enemies.push(makeEnemy(clamp(x,50,850),b.y+35,1));say('KING SLIME SPLITS!',1.3)}
+ if(k===5&&b.stage<2&&ratio<.72-b.stage*.32){b.stage++;for(const x of [150,450,750])enemies.push(makeEnemy(x,b.y+25,Math.min(3,b.stage+1)));say('RESCUE DRONES DEPLOYED!',1.2)}
+ for(const shot of shots){if(shot.dead||shot.hit.has('boss'))continue;const radius=k===1?62:k===3?74:58;if(Math.hypot(shot.x-b.x,shot.y-b.y)<radius){shot.hit.add('boss');b.hp-=shot.damage||1;b.flash=.09;score+=2;if(!shot.pierce)shot.dead=true;if(b.hp<=0){bossVictory();return true}}}
+ return false
+}
+function update(dt){if(state==='PAUSED')return;age+=dt;const active=state==='ACTION';warp=Math.max(0,warp-dt*.5);const world=palette[Math.floor(Math.max(0,wave-1)/3)%palette.length];visualHue+=(world[1]-visualHue)*Math.min(1,dt*.7);visualAccent+=(world[2]-visualAccent)*Math.min(1,dt*.7);
+ if(!reduced){for(const s of stars){s.y+=dt*(18+s.z*50)*(active?speed():.5)*(1+warp*3);s.x+=(ship.x-450)*dt*s.z*.013;if(s.y>H+35){s.y=-35;s.x=Math.random()*W}if(s.x<0)s.x+=W;if(s.x>W)s.x-=W}cometClock-=dt;if(cometClock<=0){cometClock=2+Math.random()*4;comets.push({x:Math.random()*600,y:-40,t:0})}for(const c of comets){c.x+=dt*190;c.y+=dt*280;c.t+=dt}while(comets.length&&comets[0].t>3)comets.shift()}
+ if(bannerTime>0){bannerTime-=dt;if(bannerTime<=0)$('banner').hidden=true}
+ particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt});particles=particles.filter(p=>p.life>0);rings.forEach(r=>{r.r+=dt*95;r.life-=dt});rings=rings.filter(r=>r.life>0);
+ if(state==='LAUNCH'){timer-=dt;if(timer<=0)startWave()}else if(state==='REVIEW'){timer-=dt;if(timer<=0)question()}
+ if(!active)return;
+ const dx=(keys.has('ArrowRight')||keys.has('d')?1:0)-(keys.has('ArrowLeft')||keys.has('a')?1:0),dy=(keys.has('ArrowDown')||keys.has('s')?1:0)-(keys.has('ArrowUp')||keys.has('w')?1:0);ship.tx=clamp(ship.tx+dx*440*dt,30,W-30);ship.ty=clamp(ship.ty+dy*370*dt,260,H-38);const oldX=ship.x;ship.x+=(ship.tx-ship.x)*(1-Math.exp(-dt*19));ship.y+=(ship.ty-ship.y)*(1-Math.exp(-dt*19));ship.bank=clamp((ship.x-oldX)*.015,-.3,.3);invuln=Math.max(0,invuln-dt);for(const p of ['pierce','spread'])power[p]=Math.max(0,power[p]-dt);
+ fireClock-=dt;if(fireClock<=0){fire();fireClock=Math.max(.075,.14-perks.rapid*.02)}spawnClock-=dt;if(!bossMode&&spawnClock<=0){spawn();spawnClock=.72/speed()}
+ for(const b of shots){b.px=b.x;b.py=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt}
+ if(bossMode&&updateBoss(dt))return;
+ for(const e of enemies){
+  e.t+=dt;const fall=[68,112,58,138][e.type]||72;e.y+=dt*fall*speed();const amp=[38,112,62,155][e.type],freq=[1.5,3.1,1.2,4.1][e.type];e.x=clamp(e.bx+Math.sin(e.t*freq+e.phase)*amp,25,W-25);e.fire-=dt;
+  if(e.fire<=0&&e.y>45&&e.y<330&&hostile.length<32){const a=Math.atan2(ship.y-e.y,ship.x-e.x);if(e.type===2){enemyShot(e.x,e.y,a-.24,.85);enemyShot(e.x,e.y,a+.24,.85);e.fire=2.45}else if(e.type===3){for(const d of [-.18,0,.18])enemyShot(e.x,e.y,a+d,1.18);e.fire=1.45}else{enemyShot(e.x,e.y,a,e.type===1?1.05:.86);e.fire=e.type===1?1.75:2.55}}
+  for(const b of shots){if(b.dead||b.hit.has(e.id)||e.hp<=0)continue;const vx=b.x-b.px,vy=b.y-b.py,l=vx*vx+vy*vy,t=l?clamp(((e.x-b.px)*vx+(e.y-b.py)*vy)/l,0,1):0;if(Math.hypot(b.px+t*vx-e.x,b.py+t*vy-e.y)<25){b.hit.add(e.id);e.hp-=b.damage||1;if(!b.pierce)b.dead=true;if(e.hp<=0){score+=20+e.type*8;kills++;burst(e.x,e.y,['#7bf6ff','#ff9bc6','#8cffb7','#ffd36e'][e.type]);maybeDrop(e.x,e.y)}}}
+ if(e.hp>0&&Math.hypot(e.x-ship.x,e.y-ship.y)<33){e.hp=0;damage();if(state==='END')return}}
+ enemies=enemies.filter(e=>e.hp>0&&e.y<H+40);shots=shots.filter(b=>!b.dead&&b.y>-35&&b.x>-25&&b.x<W+25);
+ for(const b of hostile){b.x+=b.vx*dt;b.y+=b.vy*dt;if(Math.hypot(b.x-ship.x,b.y-ship.y)<18){b.dead=true;damage();if(state==='END')return}}hostile=hostile.filter(b=>!b.dead&&b.y<H+20&&b.x>-20&&b.x<W+20);
+ for(const d of drops){d.y+=dt*135;if(Math.hypot(d.x-ship.x,d.y-ship.y)<45){d.dead=true;pickup(d.type)}}drops=drops.filter(d=>!d.dead&&d.y<H+30);
+ waveTime=Math.max(0,waveTime-dt);if(!bossMode&&waveTime===0){score+=50;shots=[];hostile=[];enemies=[];drops=[];keys.clear();pointer=null;if(wave%3===0)startBoss();else{state='REVIEW';timer=1.5;say('WAVE CLEAR! +50',1.5);$('feedback').textContent='Wave complete! Your next grammar question is coming.';beep(1100,.2)}}hud();}
+function oval(x,y,rx,ry,c){ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,6.283);ctx.fill()}
+function poly(points,c,stroke){ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle=c;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke()}}
+function line(x,y,x2,y2,c,w=2){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x2,y2);ctx.stroke()}
+function glow(x,y,r,c){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2)}
+function backdrop(){ctx.fillStyle='#040817';ctx.fillRect(0,0,W,H);const drift=reduced?0:Math.sin(age*.09)*90;glow(180+drift,180,390,`hsla(${visualHue},85%,44%,.2)`);glow(740-drift,410,380,`hsla(${visualAccent},85%,45%,.22)`);ctx.save();ctx.translate(740+(ship.x-450)*.012,100);ctx.rotate(-.35);ctx.strokeStyle=`hsla(${visualAccent},80%,70%,.15)`;ctx.lineWidth=9;ctx.beginPath();ctx.ellipse(0,0,104,23,0,0,6.28);ctx.stroke();oval(0,0,58,58,`hsla(${visualHue},45%,25%,.6)`);ctx.strokeStyle='#aedbff33';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,58,3.4,5.4);ctx.stroke();ctx.restore();
+ for(const s of stars){const len=reduced?1:1+s.z*2.7*speed()+warp*s.z*20;ctx.globalAlpha=.25+s.z*.2;line(s.x,s.y,s.x,s.y+len,s.z>1?'#cdfaff':'#807cd6',s.z===3?1.7:1);if(s.z===3&&s.p>5.8)line(s.x-3,s.y,s.x+3,s.y,'#ddffff',1)}ctx.globalAlpha=1;for(const c of comets){line(c.x-65,c.y-96,c.x,c.y,'#ba83ef55',5);line(c.x-42,c.y-62,c.x,c.y,'#a1f7ff99',2);oval(c.x,c.y,3,3,'#fff6db')}
+ if(warp>0&&!reduced){ctx.globalAlpha=warp*.25;for(let i=0;i<28;i++){const a=i*6.283/28,r=110+(1-warp)*300;line(450+Math.cos(a)*r,210+Math.sin(a)*r,450+Math.cos(a)*(r+80),210+Math.sin(a)*(r+80),'#99caff',2)}ctx.globalAlpha=1}
+ // Thin scanlines create a cabinet feel without flicker.
+ ctx.fillStyle='#00000012';for(let y=0;y<H;y+=4)ctx.fillRect(0,y,W,1);
+}
+function fighter(){ctx.save();ctx.translate(ship.x,ship.y);ctx.rotate(reduced?0:ship.bank);const flicker=reduced?20:21+Math.sin(age*45)*7;for(const x of [-13,13]){poly([[x-5,14],[x,35+flicker],[x+5,14]],power.pierce>0?'#f6a3ff':'#52daff');poly([[x-2,16],[x,32],[x+2,16]],'#fff7ca')}
+ poly([[0,-32],[-10,-7],[-34,13],[-35,24],[-11,16],[0,24],[11,16],[35,24],[34,13],[10,-7]],'#769bc9','#bbf4ff');poly([[0,-32],[-9,14],[0,23],[9,14]],'#edfaff');poly([[0,-20],[-5,-3],[0,6],[5,-3]],'#287fb8','#94faff');poly([[-12,6],[-31,18],[-19,17]],'#ff789e');poly([[12,6],[31,18],[19,17]],'#ff789e');for(const x of [-25,25]){line(x,14,x,-4,'#94ffff',3);oval(x,-5,2,3,'#e9ffff')}if(invuln>0){ctx.strokeStyle='#8defff99';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,44,46,0,0,6.28);ctx.stroke()}ctx.restore()}
+function drone(e){ctx.save();ctx.translate(e.x,e.y);ctx.rotate(Math.sin(e.t*3+e.phase)*.18);const colors=['#6fd8ed','#fc81b7','#71e69d','#ffc95e'],c=colors[e.type]||colors[0];if(e.type===2){poly([[-28,-12],[-16,-18],[0,-22],[16,-18],[28,-12],[23,12],[11,19],[-11,19],[-23,12]],c,'#eafff2');for(const x of [-19,19])oval(x,0,7,11,'#315a5d')}else if(e.type===3){poly([[0,-24],[29,-7],[18,18],[0,10],[-18,18],[-29,-7]],c,'#fff2c2');poly([[-30,-7],[-43,7],[-19,7]],'#ff789e');poly([[30,-7],[43,7],[19,7]],'#ff789e')}else{poly([[-25,-13],[-11,-6],[0,-17],[11,-6],[25,-13],[20,9],[9,16],[-9,16],[-20,9]],c,'#e3eaff');poly([[-18,-6],[-7,5],[-16,7]],'#523775');poly([[18,-6],[7,5],[16,7]],'#523775')}oval(0,0,8,10,'#20294b');oval(-3,0,2,3,'#ffef8a');oval(3,0,2,3,'#ffef8a');if(e.maxHp>1){ctx.fillStyle='#ffffffaa';for(let i=0;i<e.hp;i++)ctx.fillRect(-7+i*7,24,4,3)}ctx.restore()}
+function drawBoss(){
+ if(!boss)return;const b=boss,k=b.kind;ctx.save();ctx.translate(b.x,b.y);if(b.flash)ctx.globalAlpha=.68;
+ if(k===0){glow(0,0,105,'#e65cff44');oval(0,-5,72,28,'#8f67e8');oval(0,3,88,19,'#ff68c4');oval(0,-15,45,30,'#8cf7ff');oval(-15,-17,7,9,'#192248');oval(15,-17,7,9,'#192248');ctx.strokeStyle='#fff58b';ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,-10,25,.25,2.9);ctx.stroke();for(const x of [-66,-32,0,32,66])oval(x,9,5,5,'#fff28f')}
+ else if(k===1){glow(0,0,115,'#6ef5ff33');for(let i=7;i>=0;i--){const x=-i*22,y=Math.sin(b.t*5-i*.7)*15;oval(x,y,30-i*1.4,22-i*.6,i%2?'#4ed7e8':'#766cff');line(x-12,y-17,x-18,y-29,'#c6fbff',3)}oval(22,0,42,30,'#5be3ef');poly([[44,-4],[65,0],[44,7]],'#bdfcff');oval(31,-8,6,7,'#182759');oval(33,-9,2,3,'#fff58b');line(-5,18,5,30,'#8df7ff',4)}
+ else if(k===2){glow(0,8,115,'#7cff9b33');oval(0,10,78,57,'#69e88b');oval(-48,-12,27,31,'#86f39f');oval(45,-10,29,34,'#57d77c');poly([[-35,-44],[-18,-66],[0,-47],[18,-66],[35,-44]],'#ffd75e','#fff0a8');for(const x of [-25,25]){oval(x,-3,13,17,'#effff2');oval(x+3,-1,5,8,'#26365a')}ctx.strokeStyle='#26365a';ctx.lineWidth=6;ctx.beginPath();ctx.arc(0,16,27,.15,2.98);ctx.stroke();oval(-60,37,18,12,'#5bd57d');oval(60,37,18,12,'#5bd57d')}
+ else if(k===3){glow(0,0,135,'#ff9b3f44');ctx.rotate(Math.sin(b.t*.8)*.08);const pts=[];for(let i=0;i<24;i++){const a=i*Math.PI/12,r=i%2?67:91;pts.push([Math.cos(a)*r,Math.sin(a)*r])}poly(pts,'#ffaf49','#ffe5a4');oval(0,4,62,55,'#7b3d86');oval(0,16,45,28,'#251d48');for(const x of [-25,25]){oval(x,-18,15,19,'#fff4b0');oval(x,-15,6,9,'#422557')}for(let x=-27;x<=27;x+=18)poly([[x,1],[x+7,17],[x+14,1]],'#ffffff')}
+ else if(k===4){glow(0,0,125,'#fb63ff3b');ctx.globalAlpha*=.18;for(const dx of [-115,115]){ctx.fillStyle='#78f4ff';ctx.fillRect(dx-28,-35,56,70)}ctx.globalAlpha=b.flash?.68:1;poly([[0,-70],[55,-37],[65,28],[30,62],[-30,62],[-65,28],[-55,-37]],'#a65cff','#f5c4ff');poly([[-43,-30],[43,-30],[32,24],[-32,24]],'#252257');for(const x of [-17,17]){oval(x,-4,9,11,'#77fbff');oval(x,-4,3,5,'#ffffff')}poly([[-55,-38],[-33,-72],[-8,-53],[15,-78],[48,-45]],'#ff70ce','#ffe0ff')}
+ else{glow(0,0,125,'#68e8ff38');poly([[-82,-22],[-49,-55],[0,-68],[49,-55],[82,-22],[72,36],[35,55],[-35,55],[-72,36]],'#3d82b9','#c4f7ff');oval(0,-5,45,31,'#182957');oval(-17,-8,7,9,'#ffe982');oval(17,-8,7,9,'#ffe982');ctx.strokeStyle='#ff8fc9';ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,5,24,.25,2.9);ctx.stroke();for(const x of [-70,70]){line(x,20,x,74,'#86f6ff',5);ctx.strokeStyle='#ffce66';ctx.lineWidth=5;ctx.strokeRect(x-18,70,36,30);oval(x,84,7,7,'#9effb2')}}
+ ctx.restore();const pct=Math.max(0,b.hp/b.maxHp);ctx.fillStyle='#10162dcc';ctx.fillRect(170,18,560,25);ctx.fillStyle='#ff5f91';ctx.fillRect(176,24,548*pct,13);ctx.strokeStyle='#bdf8ff';ctx.lineWidth=2;ctx.strokeRect(170,18,560,25);ctx.fillStyle='#ffffff';ctx.font='bold 13px monospace';ctx.textAlign='center';ctx.fillText(b.name+' · '+Math.ceil(b.hp)+' HP',450,14)
+}
+function draw(){ctx.setTransform(DPR,0,0,DPR,0,0);backdrop();const scene=state==='PAUSED'?previous:state;if(['MENU','QUESTION','LAUNCH'].includes(scene)){for(let i=0;i<3;i++)drone({x:150+i*300,y:160,t:age*.3,phase:i,type:i%2});}
+ drawBoss();for(const e of enemies)drone(e);for(const b of shots){line(b.x,b.y+22,b.x,b.y,b.pierce?'#ea9bff':'#72faff',b.pierce?6:4);line(b.x,b.y+18,b.x,b.y,'#f4ffff',2)}for(const b of hostile){oval(b.x,b.y,5,8,'#ffbc6d');oval(b.x,b.y-2,2,4,'#fff5c7')}
+ for(const d of drops){const c=d.type==='shield'?'#90ffb6':d.type==='pierce'?'#efa1ff':'#ffdf86';ctx.save();ctx.translate(d.x,d.y);ctx.strokeStyle=c;ctx.lineWidth=2;ctx.strokeRect(-15,-15,30,30);ctx.fillStyle='#14213e';ctx.fillRect(-13,-13,26,26);ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillStyle=c;ctx.fillText(d.type==='shield'?'S':d.type==='pierce'?'P':'W',0,7);ctx.restore()}
+ fighter();for(const p of particles){ctx.globalAlpha=Math.min(1,p.life*2);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,3,3)}for(const r of rings){ctx.globalAlpha=r.life;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x,r.y,r.r,0,6.28);ctx.stroke()}ctx.globalAlpha=1;
+}
+function aim(e){const r=canvas.getBoundingClientRect();ship.tx=clamp((e.clientX-r.left)*W/r.width,30,W-30);ship.ty=clamp((e.clientY-r.top)*H/r.height-(e.pointerType==='touch'?45:0),260,H-38)}
+canvas.addEventListener('pointerdown',e=>{if(state!=='ACTION')return;e.preventDefault();pointer=e.pointerId;canvas.setPointerCapture(e.pointerId);aim(e)});canvas.addEventListener('pointermove',e=>{if(state==='ACTION'&&(e.pointerType==='mouse'||pointer===e.pointerId))aim(e)});for(const name of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(name,e=>{if(pointer===e.pointerId)pointer=null});
+document.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;const k=e.key.length===1?e.key.toLowerCase():e.key;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','w','a','s','d'].includes(k)){if(state==='ACTION'){e.preventDefault();keys.add(k)}}else if(!e.repeat&&k==='p'){e.preventDefault();pause()}else if(!e.repeat&&['1','2','3'].includes(k)){e.preventDefault();answer(Number(k)-1)}});document.addEventListener('keyup',e=>keys.delete(e.key.length===1?e.key.toLowerCase():e.key));
+$('topic').onchange=e=>{topic=e.target.value;reset()};$('modebar').addEventListener('click',e=>{const b=e.target.closest('.modeBtn');if(!b||state!=='MENU')return;topic=b.dataset.topic;queue=[];question();state='MENU';syncModeButtons();hud()});$('practice').onclick=()=>{practice=!practice;reset()};$('pause').onclick=pause;$('home').onclick=reset;$('sound').onclick=()=>{sound=!sound;$('sound').textContent=sound?'Sound on':'Sound off';$('sound').setAttribute('aria-pressed',String(sound));beep()};window.addEventListener('blur',()=>{if(!['MENU','END','PAUSED'].includes(state))pause()});document.addEventListener('visibilitychange',()=>{if(document.hidden&&!['MENU','END','PAUSED'].includes(state))pause()});
+function frame(t){const dt=last===null?0:Math.min(.04,(t-last)/1000);last=t;update(dt);draw();requestAnimationFrame(frame)}reset();requestAnimationFrame(frame);
+</script></body></html>
