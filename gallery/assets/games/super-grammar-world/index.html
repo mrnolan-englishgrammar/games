@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Super Grammar World - V4</title>
+  <style>
+    * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: none; margin: 0; padding: 0; }
+    body, html { width: 100%; height: 100%; background-color: #111; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
+    #game-wrapper { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
+    canvas { background-color: #5c94fc; max-width: 100vw; max-height: 100vh; aspect-ratio: 16 / 9; image-rendering: pixelated; }
+    #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
+    .hud { display: flex; justify-content: space-between; align-items: flex-start; padding: 15px 30px; color: white; font-weight: bold; font-size: 20px; text-shadow: 2px 2px #000; }
+    .sys-controls { display: flex; gap: 10px; pointer-events: auto; }
+    .sys-btn { background: rgba(0, 0, 0, 0.5); border: 2px solid white; border-radius: 5px; color: white; padding: 5px 15px; font-weight: bold; font-family: inherit; cursor: pointer; }
+    .sys-btn:active { background: rgba(255, 255, 255, 0.3); }
+    .controls { display: flex; justify-content: space-between; padding: 20px 40px; align-items: flex-end; }
+    .d-pad, .action-pad { display: flex; gap: 15px; }
+    .btn { pointer-events: auto; background: rgba(255, 255, 255, 0.2); border: 3px solid rgba(255,255,255,0.7); border-radius: 50%; width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; font-weight: bold; }
+    .btn:active { background: rgba(255, 255, 255, 0.5); }
+    .btn-jump { width: 90px; height: 90px; background: rgba(228, 0, 8, 0.4); }
+    #message-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; cursor: pointer; z-index: 10; }
+    #message-screen.home-mode { background: rgba(0,0,0,0.25); cursor: default; }
+    #message-screen h1 { font-size: 50px; margin-bottom: 10px; color: #f8b800; text-shadow: 3px 3px #e40008; text-align: center;}
+    .title-letter { -webkit-text-stroke: 2px #000; text-stroke: 2px #000; text-shadow: 3px 3px 0 #000, 3px 3px 0 rgba(0,0,0,0.4); }
+    #mode-select { display: none; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px; pointer-events: auto; }
+    #mode-select-label { color: #fff; font-size: 16px; letter-spacing: 1px; text-shadow: 2px 2px #000; margin-bottom: 4px; }
+    .mode-btn { font-family: inherit; font-size: 20px; font-weight: bold; color: #fff; background: #e40008; border: 3px solid #000; border-radius: 6px; padding: 12px 34px; cursor: pointer; text-shadow: 1px 1px #000; min-width: 220px; box-shadow: 0 3px 0 #7a0004; }
+    .mode-btn:active { transform: translateY(2px); box-shadow: none; }
+    #mode-btn-toBe { background: #00a800; box-shadow: 0 3px 0 #005400; }
+    #mode-btn-toHave { background: #0092d6; box-shadow: 0 3px 0 #004e73; }
+    #mode-btn-irregular { background: #e40008; box-shadow: 0 3px 0 #7a0004; }
+    #msg-sub { font-size: 20px; }
+    #quiz-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20; justify-content: center; align-items: center; pointer-events: auto; }
+    #quiz-card { background: #5c94fc; border: 6px solid #000; border-radius: 6px; padding: 24px 28px; max-width: 560px; width: 88%; box-shadow: 0 0 0 4px #f8b800; text-align: center; }
+    #quiz-heading { color: #f8b800; font-size: 22px; font-weight: bold; text-shadow: 2px 2px #000; margin-bottom: 14px; letter-spacing: 1px; }
+    #quiz-sentence { color: #fff; font-size: 19px; line-height: 1.7; text-shadow: 1px 1px #000; margin-bottom: 18px; }
+    .subj-underline { text-decoration: underline; text-decoration-color: #ffdd00; text-decoration-thickness: 4px; text-underline-offset: 4px; }
+    .tc-underline { text-decoration: underline; text-decoration-color: #000; text-decoration-thickness: 4px; text-underline-offset: 4px; }
+    .quiz-blank { color: #ffdd00; font-weight: bold; }
+    .quiz-blank.filled { color: #00e600; }
+    .tense-label { color: #ffcccc; font-size: 15px; }
+    #quiz-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .quiz-opt-btn { font-family: inherit; font-size: 18px; font-weight: bold; background: #f8b800; border: 3px solid #000; border-radius: 5px; padding: 12px; cursor: pointer; color: #000; }
+    .quiz-opt-btn:active { background: #ffe066; }
+    .quiz-opt-btn:disabled { opacity: 0.7; cursor: default; }
+    #quiz-feedback { min-height: 24px; font-size: 17px; font-weight: bold; text-shadow: 1px 1px #000; }
+  </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+  <canvas id="gameCanvas" width="800" height="450"></canvas>
+  <div id="ui-layer">
+    <div class="hud">
+      <div>SUPER GRAMMAR WORLD<br><span id="scoreDisplay">000000</span></div>
+      <div>COINS<br>x<span id="coinDisplay">00</span></div>
+      <div>LEVEL<br><span id="levelDisplay">1/3</span></div>
+      <div class="sys-controls">
+        <button class="sys-btn" id="btn-pause">PAUSE</button>
+        <button class="sys-btn" id="btn-home">HOME</button>
+      </div>
+      <div>TIME<br><span id="timeDisplay">300</span></div>
+    </div>
+    <div class="controls">
+      <div class="d-pad">
+        <div class="btn" id="btn-left">◀</div>
+        <div class="btn" id="btn-right">▶</div>
+      </div>
+      <div class="action-pad">
+        <div class="btn btn-jump" id="btn-jump">JUMP</div>
+      </div>
+    </div>
+  </div>
+  <div id="message-screen">
+    <h1 id="msg-title">SUPER GRAMMAR WORLD</h1>
+    <p id="msg-sub">Tap anywhere or press Space to Start</p>
+    <div id="mode-select">
+      <div id="mode-select-label">CHOOSE A GRAMMAR MODE</div>
+      <button class="mode-btn" id="mode-btn-toBe" onclick="chooseMode('toBe')">TO BE</button>
+      <button class="mode-btn" id="mode-btn-toHave" onclick="chooseMode('toHave')">TO HAVE</button>
+      <button class="mode-btn" id="mode-btn-irregular" onclick="chooseMode('irregular')">IRREGULAR VERBS</button>
+    </div>
+  </div>
+  <div id="quiz-modal">
+    <div id="quiz-card">
+      <div id="quiz-heading">GRAMMAR TIME!</div>
+      <div id="quiz-sentence"></div>
+      <div id="quiz-options"></div>
+      <div id="quiz-feedback"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const PALETTE = {
+    '_': null, 'K': '#000000', 'R': '#e40008', 'B': '#0020c2', 'S': '#ffcc99',
+    'D': '#884400', 'O': '#c84c0c', 'Y': '#f8b800', 'W': '#ffffff', 'G': '#00a800', 'L': '#ffcccc'
+  };
+
+  const SPRITES = {
+    player: ["____KKKKK_______","___KRRRRRKK_____","___KSSSKSSK_____","__KSSSKSSSKK____","__KSKSKSSSKK____","__KSSSKSKKK_____","___KSSSSS_______","___KRRBBRKK_____","__KRRRBBRRRK____","_KRRRRBBRRRRK___","_KSSRBBBBSSRK___","_KSSBBBBBBSSK___","__KKBBBBBBKK____","___KBBBBBBK_____","__KDDD__KDDD____","_KDDDD__KDDDD___"],
+    goomba: ["_KKKKKKKKKKKKK__","KKOOOOOOOOOOOKK_","KOOOOOOOOOOOOOOK","KOOOOOOOOOOOOOOK","KOKKKOOOOOOOKKOK","KOKWKKOOOOOKKWKK","KOKWWKKOOOKKWWKK","KOOOOOOOOOOOOOOK","_KOOOOOOOOOOOOK_","__KKKKKKKKKKKK__","__KLLLLKKKKLLLK_","_KLLLLLKKKKLLLLK","_KKKKKK__KKKKKK_","KKKKKKK__KKKKKKK","KKKKKK____KKKKKK","_KKKK______KKKK_"],
+    brick:  ["KKKKKKKKKKKKKKKK","KOOOOOOKOOOOOOOK","KOOOOOOKOOOOOOOK","KOOOOOOKOOOOOOOK","KKKKKKKKKKKKKKKK","KOOOKOOOOOOOKOOO","KOOOKOOOOOOOKOOO","KOOOKOOOOOOOKOOO","KKKKKKKKKKKKKKKK","KOOOOOOKOOOOOOOK","KOOOOOOKOOOOOOOK","KOOOOOOKOOOOOOOK","KKKKKKKKKKKKKKKK","KOOOKOOOOOOOKOOO","KOOOKOOOOOOOKOOO","KOOOKOOOOOOOKOOO"],
+    question:["KKKKKKKKKKKKKKKK","KYYYYYYYYYYYYYOK","KYKKKYYYYYYKKKOK","KYKKKYYYYYYKKKOK","KYYYYYKKKKYYYYOK","KYYYYKKYYKKYYYOK","KYYYYKKYYKKYYYOK","KYYYYYYYYKKYYYOK","KYYYYYYYKKYYYYOK","KYYYYYYYKKYYYYOK","KYYYYYYYYYYYYYOK","KYYYYYYYKKYYYYOK","KYYYYYYYKKYYYYOK","KYKKKYYYYYYKKKOK","KYKKKYYYYYYKKKOK","KKKKKKKKKKKKKKKK"],
+    ground: ["KKKKKKKKKKKKKKKK","KDDDDDDDDDDDDDDK","KDDDDDDDDDDDDDDK","KKKKKKKKKKKKKKKK","KDDDKDDDDDDDKDDD","KDDDKDDDDDDDKDDD","KKKKKKKKKKKKKKKK","KDDDDDDDKDDDDDDD","KDDDDDDDKDDDDDDD","KKKKKKKKKKKKKKKK","KDDDKDDDDDDDKDDD","KDDDKDDDDDDDKDDD","KKKKKKKKKKKKKKKK","KDDDDDDDKDDDDDDD","KDDDDDDDKDDDDDDD","KKKKKKKKKKKKKKKK"],
+    pipe:   ["KKKKKKKKKKKKKKKK","KGGGGGGGGGGGGGGK","KGWWGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KGWGGGGGGGGGGGGK","KKKKKKKKKKKKKKKK"],
+    goldpipe:["KKKKKKKKKKKKKKKK","KYYYYYYYYYYYYYYK","KYWWYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KYWYYYYYYYYYYYYK","KKKKKKKKKKKKKKKK"],
+    coin:   ["____KKKKKKK_____","___KYYYYYYYK____","__KYYYYYYYYYK___","_KYYKKKYYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKWWWKYYKYYK__","_KYKKKKYYYKYYK__","__KYYYYYYYYYK___","___KYYYYYYYK____","____KKKKKKK_____","________________"],
+    lakitu: ["____KKKK________","___KOOOOOK______","__KOKKOKKOK_____","__KOOOOOOOK_____","__KDDDDDDDK_____","_KDDDDDDDDDK____","_KDKWKKKWKDK____","_KDWWWWWWWDK____","KWWWWWWWWWWWK___","KWWKWWWWWWKWWK__","KWWWWWWWWWWWWK__","_KWWWWWWWWWWK___","__KKKKKKKKKK____","________________","________________","________________"],
+    star:   ["_______KK_______","______KYYK______","______KYYK______","_____KYYYYK_____","KKK_KKYYYYKK_KKK","KYYKKYYYYYYKKYYK","KYYYKYYYYYYKYYYK","_KYYYYYYYYYYYYK_","__KYYYYYYYYYYK__","__KYYYKKKKYYYK__","_KYYYYK__KYYYYK_","_KYYYK____KYYYK_","KYYYK______KYYYK","KYYK________KYYK","KYK__________KYK","KK____________KK"],
+    piranha:["___KKKKKKKKK____","__KGRWWWWWWRGK__","_KGGKGRWWWRGKGGK","_KGGK_KGWRGK_KGG","_KGGGK_KGGK_KGGG","_KGGOK_KGOK_KOGG","__KGGK_KGGK_KGGK","__KGGK_KGGK_KGGK","___KGKKKKKKKGK__","____KGGGGGGGK___","_____KDOOOK_____","_____KDOOOK_____","___KKGDOOOGKK___","__KGGGDOOOGGGK__","__KGGGDOOOGGGK__","___KKKKKKKKKK___"]
+  };
+
+  const COLORFUL_TITLE_HTML = '<span class="title-letter" style="color:#0092d6">S</span><span class="title-letter" style="color:#e40008">U</span><span class="title-letter" style="color:#f8b800">P</span><span class="title-letter" style="color:#00a800">E</span><span class="title-letter" style="color:#0092d6">R</span> <span class="title-letter" style="color:#e40008">G</span><span class="title-letter" style="color:#f8b800">R</span><span class="title-letter" style="color:#00a800">A</span><span class="title-letter" style="color:#0092d6">M</span><span class="title-letter" style="color:#e40008">M</span><span class="title-letter" style="color:#f8b800">A</span><span class="title-letter" style="color:#00a800">R</span> <span class="title-letter" style="color:#0092d6">W</span><span class="title-letter" style="color:#e40008">O</span><span class="title-letter" style="color:#f8b800">R</span><span class="title-letter" style="color:#00a800">L</span><span class="title-letter" style="color:#0092d6">D</span>';
+  const TILE_SIZE = 32;
+  const PIXEL_SCALE = 2;
+
+  // ---- Grammar question bank (144 total: 60 To Be, 40 To Have, 44 Irregular Verbs) ----
+const TOBE_BANK = [
+  {s:'Today, I ___ ready for class.',c:'am',o:['is','are'],subj:'I',tc:'Today',t:'PRESENT'},
+  {s:'Right now, I ___ at the library.',c:'am',o:['is','were'],subj:'I',tc:'Right now',t:'PRESENT'},
+  {s:'Every morning, I ___ hungry.',c:'am',o:['are','was'],subj:'I',tc:'Every morning',t:'PRESENT'},
+  {s:'Right now, I ___ in the classroom.',c:'am',o:['is','are'],subj:'I',tc:'Right now',t:'PRESENT'},
+  {s:'Today, I ___ excited about the trip.',c:'am',o:['is','were'],subj:'I',tc:'Today',t:'PRESENT'},
+  {s:'Right now, I ___ at my desk.',c:'am',o:['are','was'],subj:'I',tc:'Right now',t:'PRESENT'},
+  {s:'Every day, I ___ happy at school.',c:'am',o:['is','were'],subj:'I',tc:'Every day',t:'PRESENT'},
+  {s:'Right now, I ___ thirsty.',c:'am',o:['are','is'],subj:'I',tc:'Right now',t:'PRESENT'},
+  {s:'Today, I ___ at home with my family.',c:'am',o:['is','are'],subj:'I',tc:'Today',t:'PRESENT'},
+  {s:'Right now, I ___ tired after gym class.',c:'am',o:['were','is'],subj:'I',tc:'Right now',t:'PRESENT'},
+  {s:'Right now, Maya ___ at the library.',c:'is',o:['am','are'],subj:'Maya',tc:'Right now',t:'PRESENT'},
+  {s:'Today, the dog ___ in the garden.',c:'is',o:['am','were'],subj:'the dog',tc:'Today',t:'PRESENT'},
+  {s:'Every morning, my friend Omar ___ ready early.',c:'is',o:['are','was'],subj:'my friend Omar',tc:'Every morning',t:'PRESENT'},
+  {s:'Right now, our teacher ___ in the classroom.',c:'is',o:['am','were'],subj:'our teacher',tc:'Right now',t:'PRESENT'},
+  {s:'Today, the classroom ___ very clean.',c:'is',o:['are','was'],subj:'the classroom',tc:'Today',t:'PRESENT'},
+  {s:'Right now, Ben ___ at the park with his dad.',c:'is',o:['am','are'],subj:'Ben',tc:'Right now',t:'PRESENT'},
+  {s:'Every day, Sofia ___ happy at recess.',c:'is',o:['are','were'],subj:'Sofia',tc:'Every day',t:'PRESENT'},
+  {s:'Today, the new student ___ nervous.',c:'is',o:['am','are'],subj:'the new student',tc:'Today',t:'PRESENT'},
+  {s:'Right now, the cat ___ under the table.',c:'is',o:['are','was'],subj:'the cat',tc:'Right now',t:'PRESENT'},
+  {s:'Today, our class ___ on the playground.',c:'is',o:['are','were'],subj:'our class',tc:'Today',t:'PRESENT'},
+  {s:'Every morning, the students ___ in the playground.',c:'are',o:['is','was'],subj:'the students',tc:'Every morning',t:'PRESENT'},
+  {s:'Right now, we ___ in the gym.',c:'are',o:['is','was'],subj:'we',tc:'Right now',t:'PRESENT'},
+  {s:'Today, you ___ very quiet.',c:'are',o:['is','am'],subj:'you',tc:'Today',t:'PRESENT'},
+  {s:'Right now, the children ___ at lunch.',c:'are',o:['is','was'],subj:'the children',tc:'Right now',t:'PRESENT'},
+  {s:'Every day, my friends ___ at school by eight.',c:'are',o:['is','were'],subj:'my friends',tc:'Every day',t:'PRESENT'},
+  {s:'Today, the birds ___ in the tree.',c:'are',o:['is','was'],subj:'the birds',tc:'Today',t:'PRESENT'},
+  {s:'Right now, they ___ in the art room.',c:'are',o:['is','was'],subj:'they',tc:'Right now',t:'PRESENT'},
+  {s:'Today, we ___ ready for the test.',c:'are',o:['am','is'],subj:'we',tc:'Today',t:'PRESENT'},
+  {s:'Every Friday, the students ___ excited for recess.',c:'are',o:['is','were'],subj:'the students',tc:'Every Friday',t:'PRESENT'},
+  {s:'Right now, my cousins ___ at the pool.',c:'are',o:['is','was'],subj:'my cousins',tc:'Right now',t:'PRESENT'},
+  {s:'Yesterday, the dog ___ in the garden.',c:'was',o:['were','is'],subj:'the dog',tc:'Yesterday',t:'PAST'},
+  {s:'Yesterday, Kevin ___ away from school.',c:'was',o:['were','is'],subj:'Kevin',tc:'Yesterday',t:'PAST'},
+  {s:'Last night, I ___ very tired.',c:'was',o:['were','am'],subj:'I',tc:'Last night',t:'PAST'},
+  {s:'Yesterday, the classroom ___ noisy.',c:'was',o:['were','is'],subj:'the classroom',tc:'Yesterday',t:'PAST'},
+  {s:'Last week, our teacher ___ sick.',c:'was',o:['were','is'],subj:'our teacher',tc:'Last week',t:'PAST'},
+  {s:'Yesterday, Priya ___ happy about her grade.',c:'was',o:['were','is'],subj:'Priya',tc:'Yesterday',t:'PAST'},
+  {s:'Last night, the movie ___ very long.',c:'was',o:['were','is'],subj:'the movie',tc:'Last night',t:'PAST'},
+  {s:'Yesterday, my lunch ___ delicious.',c:'was',o:['were','is'],subj:'my lunch',tc:'Yesterday',t:'PAST'},
+  {s:'Last Monday, the test ___ hard.',c:'was',o:['were','is'],subj:'the test',tc:'Last Monday',t:'PAST'},
+  {s:'Yesterday, Diego ___ at the doctor\'s office.',c:'was',o:['were','is'],subj:'Diego',tc:'Yesterday',t:'PAST'},
+  {s:'Last night, we ___ very tired.',c:'were',o:['was','are'],subj:'we',tc:'Last night',t:'PAST'},
+  {s:'Yesterday, the dogs ___ in the garden.',c:'were',o:['was','are'],subj:'the dogs',tc:'Yesterday',t:'PAST'},
+  {s:'Last week, you ___ absent from class.',c:'were',o:['was','are'],subj:'you',tc:'Last week',t:'PAST'},
+  {s:'Yesterday, the students ___ quiet during the test.',c:'were',o:['was','are'],subj:'the students',tc:'Yesterday',t:'PAST'},
+  {s:'Last night, my parents ___ at a meeting.',c:'were',o:['was','are'],subj:'my parents',tc:'Last night',t:'PAST'},
+  {s:'Yesterday, Zara and Leo ___ late for school.',c:'were',o:['was','are'],subj:'Zara and Leo',tc:'Yesterday',t:'PAST'},
+  {s:'Last summer, we ___ at the beach.',c:'were',o:['was','are'],subj:'we',tc:'Last summer',t:'PAST'},
+  {s:'Yesterday, the children ___ happy at the party.',c:'were',o:['was','are'],subj:'the children',tc:'Yesterday',t:'PAST'},
+  {s:'Last week, the books ___ on the shelf.',c:'were',o:['was','are'],subj:'the books',tc:'Last week',t:'PAST'},
+  {s:'Yesterday, my friends ___ excited for the game.',c:'were',o:['was','are'],subj:'my friends',tc:'Yesterday',t:'PAST'},
+  {s:'Tomorrow, they ___ at the swimming pool.',c:'will be',o:['was','are'],subj:'they',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next week, our class ___ on a field trip.',c:'will be',o:['were','is'],subj:'our class',tc:'Next week',t:'FUTURE'},
+  {s:'Tomorrow, I ___ at the park.',c:'will be',o:['was','am'],subj:'I',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next month, we ___ on holiday.',c:'will be',o:['were','are'],subj:'we',tc:'Next month',t:'FUTURE'},
+  {s:'Tomorrow, the weather ___ sunny.',c:'will be',o:['was','is'],subj:'the weather',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next Friday, Noah ___ at his cousin\'s house.',c:'will be',o:['was','is'],subj:'Noah',tc:'Next Friday',t:'FUTURE'},
+  {s:'Tomorrow, the students ___ ready for the show.',c:'will be',o:['were','are'],subj:'the students',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next week, Grace ___ back from her trip.',c:'will be',o:['was','is'],subj:'Grace',tc:'Next week',t:'FUTURE'},
+  {s:'Tomorrow, we ___ at the museum.',c:'will be',o:['were','are'],subj:'we',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next year, the new library ___ open.',c:'will be',o:['was','is'],subj:'the new library',tc:'Next year',t:'FUTURE'},
+];
+const TOHAVE_BANK = [
+  {s:'Today, I ___ a new library book.',c:'have',o:['has','had'],subj:'I',tc:'Today',t:'PRESENT'},
+  {s:'Every morning, I ___ breakfast at seven.',c:'have',o:['has','will have'],subj:'I',tc:'Every morning',t:'PRESENT'},
+  {s:'Right now, we ___ music class.',c:'have',o:['has','had'],subj:'we',tc:'Right now',t:'PRESENT'},
+  {s:'Today, my friends ___ soccer practice.',c:'have',o:['has','had'],subj:'my friends',tc:'Today',t:'PRESENT'},
+  {s:'Every Tuesday, we ___ art class.',c:'have',o:['has','will have'],subj:'we',tc:'Every Tuesday',t:'PRESENT'},
+  {s:'Right now, the students ___ a spelling test.',c:'have',o:['has','had'],subj:'the students',tc:'Right now',t:'PRESENT'},
+  {s:'Today, you ___ two pencils in your bag.',c:'have',o:['has','had'],subj:'you',tc:'Today',t:'PRESENT'},
+  {s:'Every day, the twins ___ lunch together.',c:'have',o:['has','will have'],subj:'the twins',tc:'Every day',t:'PRESENT'},
+  {s:'Right now, I ___ a question for the teacher.',c:'have',o:['has','had'],subj:'I',tc:'Right now',t:'PRESENT'},
+  {s:'Today, we ___ extra time for reading.',c:'have',o:['has','had'],subj:'we',tc:'Today',t:'PRESENT'},
+  {s:'Right now, Liam ___ two pencils.',c:'has',o:['have','had'],subj:'Liam',tc:'Right now',t:'PRESENT'},
+  {s:'Today, my sister ___ a new backpack.',c:'has',o:['have','will have'],subj:'my sister',tc:'Today',t:'PRESENT'},
+  {s:'Every morning, our teacher ___ a math lesson ready.',c:'has',o:['have','had'],subj:'our teacher',tc:'Every morning',t:'PRESENT'},
+  {s:'Today, the classroom ___ a new poster.',c:'has',o:['have','had'],subj:'the classroom',tc:'Today',t:'PRESENT'},
+  {s:'Right now, Fatima ___ a snack in her lunchbox.',c:'has',o:['have','will have'],subj:'Fatima',tc:'Right now',t:'PRESENT'},
+  {s:'Today, the dog ___ a new toy.',c:'has',o:['have','had'],subj:'the dog',tc:'Today',t:'PRESENT'},
+  {s:'Every week, my class ___ a spelling quiz.',c:'has',o:['have','had'],subj:'my class',tc:'Every week',t:'PRESENT'},
+  {s:'Right now, Carlos ___ a red bike.',c:'has',o:['have','will have'],subj:'Carlos',tc:'Right now',t:'PRESENT'},
+  {s:'Today, the school ___ a new playground.',c:'has',o:['have','had'],subj:'the school',tc:'Today',t:'PRESENT'},
+  {s:'Right now, our teacher ___ a surprise for us.',c:'has',o:['have','had'],subj:'our teacher',tc:'Right now',t:'PRESENT'},
+  {s:'Yesterday, they ___ football practice.',c:'had',o:['have','has'],subj:'they',tc:'Yesterday',t:'PAST'},
+  {s:'Last week, our class ___ a science activity.',c:'had',o:['have','will have'],subj:'our class',tc:'Last week',t:'PAST'},
+  {s:'Yesterday, I ___ a big lunch.',c:'had',o:['have','has'],subj:'I',tc:'Yesterday',t:'PAST'},
+  {s:'Last night, we ___ homework in every subject.',c:'had',o:['have','has'],subj:'we',tc:'Last night',t:'PAST'},
+  {s:'Yesterday, the students ___ a fire drill.',c:'had',o:['have','has'],subj:'the students',tc:'Yesterday',t:'PAST'},
+  {s:'Last Monday, Ana ___ a piano lesson.',c:'had',o:['have','has'],subj:'Ana',tc:'Last Monday',t:'PAST'},
+  {s:'Yesterday, my dog ___ a bath.',c:'had',o:['have','will have'],subj:'my dog',tc:'Yesterday',t:'PAST'},
+  {s:'Last week, the school ___ a book fair.',c:'had',o:['have','has'],subj:'the school',tc:'Last week',t:'PAST'},
+  {s:'Yesterday, we ___ a substitute teacher.',c:'had',o:['have','has'],subj:'we',tc:'Yesterday',t:'PAST'},
+  {s:'Last summer, Ravi ___ swimming lessons.',c:'had',o:['have','has'],subj:'Ravi',tc:'Last summer',t:'PAST'},
+  {s:'Tomorrow, she ___ a swimming lesson.',c:'will have',o:['had','has'],subj:'she',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next month, we ___ a school holiday.',c:'will have',o:['had','have'],subj:'we',tc:'Next month',t:'FUTURE'},
+  {s:'Tomorrow, the class ___ a spelling bee.',c:'will have',o:['had','has'],subj:'the class',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next week, I ___ a new teacher.',c:'will have',o:['had','have'],subj:'I',tc:'Next week',t:'FUTURE'},
+  {s:'Tomorrow, Nadia ___ a checkup at the dentist.',c:'will have',o:['had','has'],subj:'Nadia',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next Friday, we ___ a class party.',c:'will have',o:['had','have'],subj:'we',tc:'Next Friday',t:'FUTURE'},
+  {s:'Tomorrow, the students ___ a new assignment.',c:'will have',o:['had','have'],subj:'the students',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next week, Ethan ___ his birthday party.',c:'will have',o:['had','has'],subj:'Ethan',tc:'Next week',t:'FUTURE'},
+  {s:'Tomorrow, our team ___ a big game.',c:'will have',o:['had','has'],subj:'our team',tc:'Tomorrow',t:'FUTURE'},
+  {s:'Next month, the library ___ new books.',c:'will have',o:['had','has'],subj:'the library',tc:'Next month',t:'FUTURE'},
+];
+const IRREGULAR_BANK = [
+  {s:'Yesterday, Maya ___ her library book home.',c:'took',o:['taked','takes'],verb:'take'},
+  {s:'Last night, the glass ___ on the floor.',c:'broke',o:['breaked','breaks'],verb:'break'},
+  {s:'This morning, I ___ next to my best friend.',c:'sat',o:['sitted','sits'],verb:'sit'},
+  {s:'Yesterday, Omar ___ his lunch to school.',c:'brought',o:['bringed','brings'],verb:'bring'},
+  {s:'In class, our teacher ___ about the new rules.',c:'spoke',o:['speaked','speaks'],verb:'speak'},
+  {s:'After the lesson, I finally ___ the math problem.',c:'understood',o:['understanded','understands'],verb:'understand'},
+  {s:'Last week, Ben ___ a cold.',c:'had',o:['haved','has'],verb:'have'},
+  {s:'Yesterday, the twins ___ in the school pool.',c:'swam',o:['swimmed','swim'],verb:'swim'},
+  {s:'Last Friday, Sofia ___ her favorite pencil.',c:'lost',o:['losed','loses'],verb:'lose'},
+  {s:'At the party, Kevin ___ everyone a small gift.',c:'gave',o:['gived','gives'],verb:'give'},
+  {s:'After practice, our team ___ very tired.',c:'became',o:['becomed','becomes'],verb:'become'},
+  {s:'This morning, the dog ___ all its water.',c:'drank',o:['drinked','drinks'],verb:'drink'},
+  {s:'At lunch, Priya ___ the soup instead of a sandwich.',c:'chose',o:['choosed','chooses'],verb:'choose'},
+  {s:'Yesterday, the bird ___ over our school.',c:'flew',o:['flied','flies'],verb:'fly'},
+  {s:'Last weekend, my dad ___ us to the beach.',c:'drove',o:['drived','drives'],verb:'drive'},
+  {s:'Last year, Mr. Lopez ___ our class science.',c:'taught',o:['teached','teaches'],verb:'teach'},
+  {s:'This morning, Diego ___ sick before class.',c:'felt',o:['feeled','feels'],verb:'feel'},
+  {s:'Yesterday, the little boy ___ off his bike.',c:'fell',o:['falled','falls'],verb:'fall'},
+  {s:'This morning, Zara ___ up very early.',c:'woke',o:['waked','wakes'],verb:'wake'},
+  {s:'Last night, I ___ a loud noise outside.',c:'heard',o:['heared','hears'],verb:'hear'},
+  {s:'Yesterday, Leo ___ a whole chapter of his book.',c:'read',o:['readed','reads'],verb:'read'},
+  {s:'This morning, my sister ___ her homework at home.',c:'forgot',o:['forgetted','forgets'],verb:'forget'},
+  {s:'Yesterday, Noah ___ a new pair of shoes.',c:'got',o:['getted','gets'],verb:'get'},
+  {s:'Last week, Grace ___ the answer right away.',c:'knew',o:['knowed','knows'],verb:'know'},
+  {s:'Yesterday, our teacher ___ us a funny story.',c:'told',o:['telled','tells'],verb:'tell'},
+  {s:'Last winter, Yuki ___ a warm red coat.',c:'wore',o:['weared','wears'],verb:'wear'},
+  {s:'Last night, the baby ___ for ten hours.',c:'slept',o:['sleeped','sleeps'],verb:'sleep'},
+  {s:'Yesterday, Amara ___ her promise to help.',c:'kept',o:['keeped','keeps'],verb:'keep'},
+  {s:'This morning, the students ___ early for the bus.',c:'left',o:['leaved','leave'],verb:'leave'},
+  {s:'Last weekend, Tomás ___ a new backpack.',c:'bought',o:['buyed','buys'],verb:'buy'},
+  {s:'At the game, Lucas ___ the ball with both hands.',c:'caught',o:['catched','catches'],verb:'catch'},
+  {s:'Yesterday, Mei ___ the paper with scissors.',c:'cut',o:['cutted','cuts'],verb:'cut'},
+  {s:'This morning, our coach ___ with the new players.',c:'dealt',o:['dealed','deals'],verb:'deal'},
+  {s:'Yesterday, Aisha ___ her lost key under the bed.',c:'found',o:['finded','finds'],verb:'find'},
+  {s:'At recess, Kofi ___ the rope for his friend.',c:'held',o:['holded','holds'],verb:'hold'},
+  {s:'Last night, my mom ___ a delicious dinner.',c:'made',o:['maked','makes'],verb:'make'},
+  {s:'Yesterday, we ___ our new neighbor for the first time.',c:'met',o:['meeted','meet'],verb:'meet'},
+  {s:'Last week, Sara ___ for her school trip.',c:'paid',o:['payed','pays'],verb:'pay'},
+  {s:'This morning, the janitor ___ the chairs away.',c:'put',o:['putted','puts'],verb:'put'},
+  {s:'Yesterday, my brother ___ very fast in the race.',c:'ran',o:['runned','runs'],verb:'run'},
+  {s:'This morning, the principal ___ good morning to us.',c:'said',o:['sayed','says'],verb:'say'},
+  {s:'Last weekend, the bakery ___ all its bread.',c:'sold',o:['selled','sells'],verb:'sell'},
+  {s:'Yesterday, my aunt ___ me a birthday card.',c:'sent',o:['sended','sends'],verb:'send'},
+  {s:'This morning, the class ___ in a straight line.',c:'stood',o:['standed','stands'],verb:'stand'},
+];
+
+  function drawSprite(spriteData, x, y) {
+    for (let row = 0; row < 16; row++) {
+      for (let col = 0; col < 16; col++) {
+        let char = spriteData[row][col];
+        if (PALETTE[char]) {
+          ctx.fillStyle = PALETTE[char];
+          ctx.fillRect(x + col * PIXEL_SCALE, y + row * PIXEL_SCALE, PIXEL_SCALE, PIXEL_SCALE);
+        }
+      }
+    }
+  }
+
+  let score = 0; let coinCount = 0; let timer = 300; let frameCount = 0;
+  let gameState = 'HOME';
+  let cameraX = 0;
+
+  // ---- Grammar mode + question queue state ----
+  let currentMode = null; // 'toBe' | 'toHave' | 'irregular'
+  let questionQueue = [];
+  let questionQueueIndex = 0;
+  let quizModalOpen = false;
+  let pendingQuizBlock = null;
+
+  const keys = { left: false, right: false, jump: false };
+
+  // Re-designed level: staircase/flag/castle ending, 10 golden question-pipes
+  // ('M', verified all on solid ground), and 3 stars ('S'), extended length.
+  // LEVELS[1] and LEVELS[2] share this exact ground/pit layout and the same
+  // flagpole+castle columns (that ending is unchanged) -- only the upper
+  // decoration (coins/enemies/quiz-pipes) differs per level.
+  const LEVELS = [
+  [
+    "                                                                                                                                                                                                                                           ",
+    "                                                                                                                                                                                                                                           ",
+    "                            L                                                                                                                                                                      BB                                      ",
+    "                                                                                                                                                                                                 BBBB                                      ",
+    "                                                                          C   C                                                                                                                BBBBBB                                      ",
+    "                                                                          Q   Q                                                                                                              BBBBBBBB                                      ",
+    "                                      C                                                 B B V                                                               C C C C                        BBBBBBBBBB                                      ",
+    "                      C C C    M      Q        M              M     C   C     M        B B  P  M             M               M              M            M  B B B B         M            BBBBBBBBBBBB                                      ",
+    "                    S Q B Q                                         Q   Q               B B P      S                                                        B B B B S                  BBBBBBBBBBBBBB      F                               ",
+    "            C     E               V       E                                            B B  P                                                       E E     B B B B   E E            BBBBBBBBBBBBBBBB      B           H                   ",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+  ],
+  [
+    "                                                                                                                                                                                                                                           ",
+    "                                                                                                                                                                                                                                           ",
+    "                             L                                       C                                                                                                                     B B B B B B                                     ",
+    "                                                                                                                                                      C                                      B B B B B                                     ",
+    "                                                        C            Q                                                  Q                                                                      B B B B                                     ",
+    "                                                                                                                                                      Q Q                                        B B B                                     ",
+    "                                                        Q                                                             V                                        V                                                                           ",
+    "                                    M   C                       M                      M                              P  M                      M              P        M               C                                                  ",
+    "                                                                                          C                           P                                        P                                           F                               ",
+    "               E                                                      E                                    C          P E       S    E             S          CP                         C                             H                   ",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+  ],
+  [
+    "                                                                                                                                                                                                                                           ",
+    "                                                                                                                                                                                                                                           ",
+    "                          L                                                                                         C                                                                      B B B B B B                                     ",
+    "                                                                                                                                                                              C              B B B B B                                     ",
+    "                                                                                                                    Q                            C   Q                                         B B B B                                     ",
+    "                                                                                                                                                                     Q        Q                  B B B                                     ",
+    "                                                                 C                  V                           C                                Q    V                                                                                    ",
+    "                                     M                          M    C              PM                      M               M                   M  C  P                    M            M                                                  ",
+    "                                                     C                              P                                                                 P                                                    F                               ",
+    "                                   E                           E                    P    E           S                               S                PE                                                               H                   ",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+  ]
+  ];
+  let currentLevelIndex = 0;
+
+  let mapWidth = LEVELS[0][0].length * TILE_SIZE;
+  let blocks = []; let enemies = []; let collectibles = [];
+  let plants = []; let lakitus = []; let flagpole = null;
+  let castle = null;
+
+  function buildLevel() {
+    blocks = []; enemies = []; collectibles = []; plants = []; lakitus = []; flagpole = null;
+    castle = null;
+    questionQueueIndex = 0;
+    const levelData = LEVELS[currentLevelIndex];
+    for (let r = 0; r < levelData.length; r++) {
+      for (let c = 0; c < levelData[r].length; c++) {
+        let type = levelData[r][c];
+        if (type === 'W') blocks.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, type: 'ground' });
+        if (type === 'B') blocks.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, type: 'brick' });
+        if (type === 'P') blocks.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, type: 'pipe' });
+        if (type === 'V') {
+          blocks.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, type: 'pipe' });
+          plants.push(new PiranhaPlant(c * TILE_SIZE, r * TILE_SIZE));
+        }
+        if (type === 'Q') blocks.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, type: 'question', used: false });
+        if (type === 'M') {
+          // A star sitting on top of a golden pipe triggers a grammar question
+          // when touched -- reuses the same simple, reliable collectible-pickup
+          // logic that coins already use, instead of the less reliable
+          // hit-the-block-from-below approach.
+          collectibles.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, collected: false, isStar: true, isQuizStar: true });
+          blocks.push({ x: c * TILE_SIZE, y: (r + 1) * TILE_SIZE, type: 'goldpipe' });
+          blocks.push({ x: c * TILE_SIZE, y: (r + 2) * TILE_SIZE, type: 'goldpipe' });
+        }
+        if (type === 'S') collectibles.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, collected: false, isStar: true });
+        if (type === 'C') collectibles.push({ x: c * TILE_SIZE, y: r * TILE_SIZE, collected: false });
+        if (type === 'E') enemies.push(new Enemy(c * TILE_SIZE, r * TILE_SIZE));
+        if (type === 'L') lakitus.push(new Lakitu(c * TILE_SIZE, r * TILE_SIZE));
+        if (type === 'H') castle = { x: c * TILE_SIZE, y: (r + 1) * TILE_SIZE };
+        if (type === 'F') {
+          flagpole = {
+            x: c * TILE_SIZE,
+            topY: (r - 7) * TILE_SIZE,
+            bottomY: r * TILE_SIZE,
+            flagY: (r - 7) * TILE_SIZE + 10,
+            timer: 0
+          };
+        }
+      }
+    }
+  }
+
+  class Player {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = 100; this.y = 200; this.w = 26; this.h = 32;
+      this.vx = 0; this.vy = 0; this.speed = 4.5; this.jumpForce = -13.5;
+      this.gravity = 0.65; this.grounded = false; this.dead = false;
+    }
+    update() {
+      if (this.dead) { this.vy += this.gravity; this.y += this.vy; return; }
+      if (keys.left) this.vx = -this.speed;
+      else if (keys.right) this.vx = this.speed;
+      else this.vx = 0;
+      this.x += this.vx; this.checkCollisions(true);
+      if (keys.jump && this.grounded) { this.vy = this.jumpForce; this.grounded = false; }
+      this.vy += this.gravity; this.y += this.vy; this.grounded = false;
+      this.checkCollisions(false);
+      if (this.y > 600) triggerGameOver();
+    }
+    checkCollisions(isX) {
+      for (let b of blocks) {
+        if (this.x < b.x + TILE_SIZE && this.x + this.w > b.x && this.y < b.y + TILE_SIZE && this.y + this.h > b.y) {
+          if (isX) {
+            if (this.vx > 0) this.x = b.x - this.w;
+            else if (this.vx < 0) this.x = b.x + TILE_SIZE;
+            this.vx = 0;
+          } else {
+            if (this.vy > 0) {
+              this.y = b.y - this.h; this.vy = 0; this.grounded = true;
+            } else if (this.vy < 0) {
+              this.y = b.y + TILE_SIZE; this.vy = 0;
+              if (b.type === 'question' && !b.used) { b.used = true; coinCount++; score += 100; }
+            }
+          }
+        }
+      }
+    }
+    draw() { drawSprite(SPRITES.player, this.x, this.y); }
+  }
+
+  class Enemy {
+    constructor(x, y) { this.x = x; this.y = y; this.w = 32; this.h = 32; this.vx = -1.5; this.vy = 0; this.alive = true; }
+    update() {
+      if (!this.alive) return;
+      this.vy += 0.65; this.x += this.vx;
+      for (let b of blocks) {
+        if (this.x < b.x + TILE_SIZE && this.x + this.w > b.x && this.y < b.y + TILE_SIZE && this.y + this.h > b.y) {
+          if (this.vx > 0) { this.x = b.x - this.w; this.vx *= -1; }
+          else if (this.vx < 0) { this.x = b.x + TILE_SIZE; this.vx *= -1; }
+        }
+      }
+      this.y += this.vy;
+      for (let b of blocks) {
+        if (this.x < b.x + TILE_SIZE && this.x + this.w > b.x && this.y < b.y + TILE_SIZE && this.y + this.h > b.y) {
+          if (this.vy > 0) { this.y = b.y - this.h; this.vy = 0; }
+        }
+      }
+    }
+    draw() { if (this.alive) drawSprite(SPRITES.goomba, this.x, this.y); }
+  }
+
+  class Lakitu {
+    constructor(x, y) { this.startX = x; this.x = x; this.y = y; this.w = 32; this.h = 32; this.alive = true; }
+    update() {
+      if (!this.alive) return;
+      // Follows the camera throughout the whole level (instead of stopping
+      // near its starting spot), staying just ahead of the player and
+      // drifting side to side -- and now drops a Goomba more often.
+      this.x = cameraX + 420 + Math.sin(frameCount / 55) * 150;
+      if (frameCount > 0 && frameCount % 140 === 0) {
+        enemies.push(new Enemy(this.x, this.y + 32));
+      }
+    }
+    draw() { if (this.alive) drawSprite(SPRITES.lakitu, this.x, this.y); }
+  }
+
+  class PiranhaPlant {
+    constructor(x, y) { this.x = x; this.startY = y; this.y = y; this.w = 32; this.h = 32; }
+    update() {
+      let cycle = frameCount % 120;
+      if (cycle < 30) this.y = this.startY - (cycle / 30) * TILE_SIZE;
+      else if (cycle < 60) this.y = this.startY - TILE_SIZE;
+      else if (cycle < 90) this.y = this.startY - TILE_SIZE + ((cycle - 60) / 30) * TILE_SIZE;
+      else this.y = this.startY;
+    }
+    draw() { drawSprite(SPRITES.piranha, this.x, this.y); }
+  }
+
+  const player = new Player();
+  const msgScreen = document.getElementById('message-screen');
+  const msgTitle = document.getElementById('msg-title');
+  const msgSub = document.getElementById('msg-sub');
+
+  function goHome() {
+    gameState = 'HOME';
+    msgTitle.innerHTML = COLORFUL_TITLE_HTML;
+    msgSub.style.display = 'none';
+    document.getElementById('mode-select').style.display = 'flex';
+    msgScreen.classList.add('home-mode');
+    msgScreen.style.display = 'flex';
+  }
+
+  function chooseMode(mode) {
+    currentMode = mode;
+    startCountdown();
+  }
+
+  function startCountdown() {
+    if (!currentMode) return; // must select a grammar mode first
+    currentLevelIndex = 0;
+    gameState = 'COUNTDOWN'; score = 0; coinCount = 0; timer = 300;
+    buildQuestionQueue();
+    player.reset(); buildLevel(); cameraX = 0;
+    document.getElementById('mode-select').style.display = 'none';
+    msgScreen.classList.remove('home-mode');
+    msgScreen.style.display = 'flex'; msgSub.style.display = 'none';
+    runCountdown();
+  }
+
+  // Advances to the next level after clearing a castle (score/coins/grammar
+  // mode carry over) -- same countdown, just a brief "LEVEL n" label first
+  // instead of resetting the run.
+  function startNextLevel() {
+    gameState = 'COUNTDOWN'; timer = 300;
+    buildQuestionQueue();
+    player.reset(); buildLevel(); cameraX = 0;
+    msgScreen.classList.remove('home-mode');
+    msgScreen.style.display = 'flex'; msgSub.style.display = 'none';
+    msgTitle.innerText = 'LEVEL ' + (currentLevelIndex + 1);
+    setTimeout(runCountdown, 1200);
+  }
+
+  function runCountdown() {
+    let count = 3; msgTitle.innerText = count;
+    let cdInterval = setInterval(() => {
+      count--;
+      if (count > 0) msgTitle.innerText = count;
+      else if (count === 0) msgTitle.innerText = "GO!";
+      else { clearInterval(cdInterval); msgScreen.style.display = 'none'; gameState = 'PLAY'; }
+    }, 1000);
+  }
+
+  function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildQuestionQueue() {
+    let bank = TOBE_BANK;
+    if (currentMode === 'toHave') bank = TOHAVE_BANK;
+    else if (currentMode === 'irregular') bank = IRREGULAR_BANK;
+    questionQueue = shuffleArray(bank).slice(0, 10);
+    questionQueueIndex = 0;
+  }
+
+  function renderQuizSentence(q, revealed) {
+    let html = revealed
+      ? q.s.replace('___', `<span class="quiz-blank filled">${q.c}</span>`)
+      : q.s.replace('___', '<span class="quiz-blank">____</span>');
+    if (q.tc) html = html.split(q.tc).join(`<span class="tc-underline">${q.tc}</span>`);
+    if (q.subj) html = html.split(q.subj).join(`<span class="subj-underline">${q.subj}</span>`);
+    if (q.t) html += ` <span class="tense-label">(${q.t})</span>`;
+    return html;
+  }
+
+  function openQuizQuestion(block) {
+    if (questionQueueIndex >= questionQueue.length) questionQueueIndex = 0;
+    const q = questionQueue[questionQueueIndex];
+    questionQueueIndex++;
+    quizModalOpen = true;
+    gameState = 'QUIZ';
+
+    const sentEl = document.getElementById('quiz-sentence');
+    sentEl.innerHTML = renderQuizSentence(q, false);
+
+    const opts = shuffleArray([q.c, ...q.o]);
+    const btnContainer = document.getElementById('quiz-options');
+    btnContainer.innerHTML = '';
+    opts.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt-btn';
+      btn.textContent = opt;
+      btn.onclick = () => answerQuiz(opt, q, sentEl);
+      btnContainer.appendChild(btn);
+    });
+
+    document.getElementById('quiz-feedback').textContent = '';
+    document.getElementById('quiz-modal').style.display = 'flex';
+  }
+
+  function answerQuiz(selected, q, sentEl) {
+    const feedback = document.getElementById('quiz-feedback');
+    const correct = selected === q.c;
+    document.querySelectorAll('.quiz-opt-btn').forEach(b => b.disabled = true);
+    if (correct) {
+      feedback.textContent = "Correct! Great job!";
+      feedback.style.color = '#00e600';
+      score += 50;
+    } else {
+      feedback.textContent = `Not quite. The answer is: ${q.c}`;
+      feedback.style.color = '#ff6666';
+    }
+    sentEl.innerHTML = renderQuizSentence(q, true);
+
+    setTimeout(() => {
+      document.getElementById('quiz-modal').style.display = 'none';
+      quizModalOpen = false;
+      if (gameState === 'QUIZ') gameState = 'PLAY';
+    }, 1800);
+  }
+
+  function togglePause() {
+    if (gameState === 'PLAY' || gameState === 'FLAG_SLIDE' || gameState === 'FLAG_WALK') {
+      gameState = 'PAUSE'; msgTitle.innerText = "PAUSED"; msgSub.style.display = 'block';
+      msgSub.innerText = "Tap to Resume"; document.getElementById('mode-select').style.display = 'none';
+      msgScreen.classList.remove('home-mode');
+      msgScreen.style.display = 'flex';
+    } else if (gameState === 'PAUSE') {
+      gameState = 'PLAY'; msgScreen.style.display = 'none';
+    }
+  }
+
+  function triggerGameOver() {
+    gameState = 'OVER'; player.dead = true; msgTitle.innerText = "GAME OVER";
+    msgSub.style.display = 'block'; msgSub.innerText = "Tap to Retry";
+    document.getElementById('mode-select').style.display = 'none';
+    msgScreen.classList.remove('home-mode');
+    msgScreen.style.display = 'flex';
+  }
+
+  function triggerWin() {
+    gameState = 'WIN'; msgTitle.innerText = "ALL LEVELS CLEARED!";
+    msgSub.style.display = 'block'; msgSub.innerText = "Tap to Play Again";
+    document.getElementById('mode-select').style.display = 'none';
+    msgScreen.classList.remove('home-mode');
+    msgScreen.style.display = 'flex';
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+    if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+    if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') keys.jump = true;
+    if (e.key === ' ') {
+      if (gameState === 'HOME' || gameState === 'OVER' || gameState === 'WIN') startCountdown();
+      else if (gameState === 'PAUSE') togglePause();
+    }
+    if (e.key === 'Escape' || e.key === 'p') togglePause();
+  }, { passive: false });
+
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+    if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') keys.jump = false;
+  });
+
+  const bindBtn = (id, k) => {
+    const el = document.getElementById(id);
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[k] = true; }, {passive: false});
+    el.addEventListener('touchend', (e) => { e.preventDefault(); keys[k] = false; }, {passive: false});
+    el.addEventListener('mousedown', () => keys[k] = true);
+    el.addEventListener('mouseup', () => keys[k] = false);
+    el.addEventListener('mouseleave', () => keys[k] = false);
+  };
+  bindBtn('btn-left', 'left'); bindBtn('btn-right', 'right'); bindBtn('btn-jump', 'jump');
+  document.getElementById('btn-pause').addEventListener('click', togglePause);
+  document.getElementById('btn-home').addEventListener('click', goHome);
+
+  msgScreen.addEventListener('click', (e) => {
+    if (e.target.closest('#mode-select')) return; // let mode buttons handle their own tap
+    if (gameState === 'OVER' || gameState === 'WIN') startCountdown();
+    else if (gameState === 'PAUSE') togglePause();
+  });
+  msgScreen.addEventListener('touchstart', (e) => {
+    if (e.target.closest('#mode-select')) return; // let mode buttons handle their own tap (iPad-safe)
+    e.preventDefault();
+    if (gameState === 'OVER' || gameState === 'WIN') startCountdown();
+    else if (gameState === 'PAUSE') togglePause();
+  }, {passive: false});
+
+  function checkEntityCollision(entity, isFatal = true, isStompable = true) {
+    if (player.x < entity.x + entity.w && player.x + player.w > entity.x &&
+        player.y < entity.y + entity.h && player.y + player.h > entity.y) {
+      if (isStompable && player.vy > 0 && player.y + player.h < entity.y + 16) {
+        entity.alive = false; player.vy = -9; score += 200; return true;
+      } else if (isFatal) { triggerGameOver(); }
+    }
+    return false;
+  }
+
+  // ---- Decorative, purely-visual home-screen background (goombas patrolling,
+  // Mario walking, a bobbing pipe). Entirely separate from the real level's
+  // enemies/player -- never touches real gameplay state. ----
+  let homeFrame = 0;
+  const homeGoombas = [
+    { x: 280, baseX: 280, dir: 1 },
+    { x: 560, baseX: 560, dir: -1 },
+    { x: 680, baseX: 680, dir: 1 }
+  ];
+  const homeMario = { x: 420, baseX: 420, dir: -1 };
+
+  function updateAndDrawHomeBackground() {
+    homeFrame++;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const groundY = canvas.height - TILE_SIZE;
+    for (let gx = 0; gx < canvas.width + TILE_SIZE; gx += TILE_SIZE) {
+      drawSprite(SPRITES.ground, gx, groundY);
+    }
+
+    const pipeBob = Math.sin(homeFrame / 45) * 10;
+    drawSprite(SPRITES.goldpipe, 90, groundY - TILE_SIZE * 2 + pipeBob);
+    drawSprite(SPRITES.goldpipe, 90, groundY - TILE_SIZE + pipeBob);
+
+    homeGoombas.forEach(g => {
+      g.x += g.dir * 0.7;
+      if (g.x > g.baseX + 70 || g.x < g.baseX - 70) g.dir *= -1;
+      drawSprite(SPRITES.goomba, g.x, groundY - TILE_SIZE);
+    });
+
+    homeMario.x += homeMario.dir * 1.1;
+    if (homeMario.x > homeMario.baseX + 130 || homeMario.x < homeMario.baseX - 130) homeMario.dir *= -1;
+    const marioHop = Math.abs(Math.sin(homeFrame / 7)) * 4;
+    drawSprite(SPRITES.player, homeMario.x, groundY - TILE_SIZE - marioHop);
+  }
+
+  function loop() {
+    requestAnimationFrame(loop);
+
+    if (gameState === 'HOME') {
+      updateAndDrawHomeBackground();
+      return;
+    }
+
+    if (gameState === 'PLAY' || gameState === 'FLAG_SLIDE' || gameState === 'FLAG_WALK' || gameState === 'WIN_WAIT') {
+      frameCount++;
+
+      if (gameState === 'PLAY') {
+        if (frameCount % 60 === 0) timer--;
+        if (timer <= 0) triggerGameOver();
+
+        player.update();
+
+        // Flagpole Interaction logic
+        if (flagpole && player.x + player.w > flagpole.x + 12 && player.x < flagpole.x + 20 && player.y < flagpole.bottomY + TILE_SIZE) {
+            gameState = 'FLAG_SLIDE';
+            player.x = flagpole.x - 10;
+            player.vx = 0;
+            player.vy = 2.5;
+
+            // Apply bonus score based on height attached
+            let heightPoints = Math.floor((flagpole.bottomY - player.y) / TILE_SIZE) * 500;
+            score += Math.max(100, heightPoints);
+        }
+
+        for (let p of plants) {
+          p.update();
+          if (p.y < p.startY && !player.dead) checkEntityCollision(p, true, false);
+        }
+
+        for (let l of lakitus) {
+          l.update();
+          if (l.alive && !player.dead) checkEntityCollision(l, true, true);
+        }
+
+        for (let c of collectibles) {
+          if (!c.collected && player.x < c.x + TILE_SIZE && player.x + player.w > c.x &&
+              player.y < c.y + TILE_SIZE && player.y + player.h > c.y) {
+            c.collected = true;
+            if (c.isQuizStar) { score += 500; openQuizQuestion(c); }
+            else if (c.isStar) { score += 1000; }
+            else { coinCount++; score += 50; }
+          }
+        }
+
+        for (let e of enemies) {
+          e.update();
+          if (e.alive && !player.dead) checkEntityCollision(e, true, true);
+        }
+        // Clean up enemies that have scrolled well behind the camera -- they
+        // can never be reached again since the level only scrolls forward.
+        // Keeps the enemy list from growing without bound now that the cloud
+        // guy spawns Goombas continuously across the whole level.
+        if (frameCount % 60 === 0) {
+          enemies = enemies.filter(e => e.x > cameraX - 300);
+        }
+      } else if (gameState === 'FLAG_SLIDE') {
+          player.y += player.vy;
+
+          let maxFlagY = flagpole.bottomY + TILE_SIZE - 24;
+          if (flagpole.flagY < maxFlagY) {
+              flagpole.flagY += 3;
+              if (flagpole.flagY > maxFlagY) flagpole.flagY = maxFlagY;
+          }
+
+          let maxPlayerY = flagpole.bottomY + TILE_SIZE - player.h;
+          if (player.y >= maxPlayerY) {
+              player.y = maxPlayerY;
+              player.vy = 0;
+              flagpole.timer++;
+              if (flagpole.timer > 90) {
+                  gameState = 'FLAG_WALK';
+                  player.x = flagpole.x + 16; // step out from behind the pole
+              }
+          }
+      } else if (gameState === 'FLAG_WALK') {
+          player.vx = 2.5;
+          player.x += player.vx;
+          player.checkCollisions(true);
+          player.vy += player.gravity;
+          player.y += player.vy;
+          player.checkCollisions(false);
+
+          if (castle && player.x > castle.x - 10) {
+              gameState = 'WIN_WAIT';
+              if (currentLevelIndex < LEVELS.length - 1) {
+                  currentLevelIndex++;
+                  setTimeout(startNextLevel, 1000);
+              } else {
+                  setTimeout(triggerWin, 1000);
+              }
+          }
+      }
+
+      // Camera lock tracking
+      if (player.x > cameraX + 350) cameraX = player.x - 350;
+      if (player.x < cameraX + 100 && cameraX > 0) cameraX = player.x - 100;
+
+      document.getElementById('scoreDisplay').innerText = String(score).padStart(6, '0');
+      document.getElementById('coinDisplay').innerText = String(coinCount).padStart(2, '0');
+      document.getElementById('timeDisplay').innerText = String(timer).padStart(3, '0');
+      document.getElementById('levelDisplay').innerText = (currentLevelIndex + 1) + '/' + LEVELS.length;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save(); ctx.translate(-cameraX, 0);
+
+    // Layer 1: Piranha Plants
+    for (let p of plants) {
+      if (p.x + TILE_SIZE >= cameraX && p.x <= cameraX + 800) p.draw();
+    }
+
+    // Layer 2: Blocks and Environment
+    for (let b of blocks) {
+      if (b.x + TILE_SIZE < cameraX || b.x > cameraX + 800) continue;
+      if (b.type === 'ground') drawSprite(SPRITES.ground, b.x, b.y);
+      if (b.type === 'brick') drawSprite(SPRITES.brick, b.x, b.y);
+      if (b.type === 'pipe') drawSprite(SPRITES.pipe, b.x, b.y);
+      if (b.type === 'goldpipe') drawSprite(SPRITES.goldpipe, b.x, b.y);
+      if (b.type === 'question') {
+        if (b.used) {
+          ctx.fillStyle = '#884400'; ctx.fillRect(b.x, b.y, TILE_SIZE, TILE_SIZE);
+          ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.strokeRect(b.x, b.y, TILE_SIZE, TILE_SIZE);
+        } else { drawSprite(SPRITES.question, b.x, b.y); }
+      }
+
+    }
+
+    // Castle (end-of-level backdrop)
+    if (castle && castle.x + 200 >= cameraX && castle.x - 200 <= cameraX + 800) {
+      let cx = castle.x;
+      let cy = castle.y;
+
+      ctx.fillStyle = '#c84c0c';
+      ctx.fillRect(cx - 64, cy - 96, 128, 96);
+      ctx.fillRect(cx - 48, cy - 160, 96, 64);
+
+      for (let i = 0; i < 4; i++) ctx.fillRect(cx - 64 + i * 38, cy - 112, 16, 16);
+      for (let i = 0; i < 3; i++) ctx.fillRect(cx - 48 + i * 40, cy - 176, 16, 16);
+
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+      ctx.strokeRect(cx - 64, cy - 96, 128, 96);
+      ctx.strokeRect(cx - 48, cy - 160, 96, 64);
+
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.arc(cx, cy - 32, 24, Math.PI, 0); ctx.fill();
+      ctx.fillRect(cx - 24, cy - 32, 48, 32);
+
+      ctx.fillRect(cx - 24, cy - 128, 16, 24);
+      ctx.fillRect(cx + 8, cy - 128, 16, 24);
+    }
+
+    // Layer 3: Flagpole custom rendering
+    if (flagpole && flagpole.x + TILE_SIZE >= cameraX && flagpole.x <= cameraX + 800) {
+      let fx = flagpole.x;
+      let fy = flagpole.topY;
+      let bottomY = flagpole.bottomY;
+
+      // Pole Line
+      ctx.fillStyle = '#80e000';
+      ctx.fillRect(fx + 12, fy, 6, bottomY - fy + TILE_SIZE);
+
+      // Top Finial Bulb
+      ctx.fillStyle = '#00a800';
+      ctx.beginPath(); ctx.arc(fx + 15, fy, 10, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#80e000';
+      ctx.beginPath(); ctx.arc(fx + 15, fy, 6, 0, Math.PI*2); ctx.fill();
+
+      // Flag Triangle
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.moveTo(fx + 12, flagpole.flagY);
+      ctx.lineTo(fx - 24, flagpole.flagY + 12);
+      ctx.lineTo(fx + 12, flagpole.flagY + 24);
+      ctx.fill();
+
+      // Minimal Logo shape on flag
+      ctx.fillStyle = '#00a800';
+      ctx.beginPath(); ctx.arc(fx - 6, flagpole.flagY + 12, 4, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Layer 4: Coins & Entities
+    for (let c of collectibles) {
+      if (!c.collected && c.x + TILE_SIZE >= cameraX && c.x <= cameraX + 800) drawSprite(c.isStar ? SPRITES.star : SPRITES.coin, c.x, c.y);
+    }
+    for (let l of lakitus) l.draw();
+    for (let e of enemies) e.draw();
+
+    // Layer 5: Player
+    if (gameState !== 'WIN_WAIT') {
+      if (!player.dead || (player.dead && frameCount % 10 < 5)) player.draw();
+    }
+
+    ctx.restore();
+  }
+
+  buildLevel();
+  goHome();
+  requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
